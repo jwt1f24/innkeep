@@ -1,0 +1,11 @@
+# pycharm config folder
+.idea/
+
+# python virtual environment
+.venv/
+
+# javascript package for frontend
+node_modules/
+
+# environment credentials
+.env
