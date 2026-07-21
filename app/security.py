@@ -18,6 +18,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     result = bcrypt.checkpw(plain_bytes, hashed_bytes)
     return result
 
+# create access tokens
 def create_access_token(sub: str) -> str:
     payload = {
         "sub": sub,
@@ -26,6 +27,7 @@ def create_access_token(sub: str) -> str:
     token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
     return token
 
+# decode access token to verify user identity
 def decode_access_token(token: str) -> dict | None:
     try:
         result = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
