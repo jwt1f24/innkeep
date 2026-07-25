@@ -5,7 +5,6 @@ from app.models import User, Role
 from app.schemas import UserCreate, UserOut, Token
 from app.security import hash_password, verify_password, create_access_token
 from app.database import get_db
-from datetime import datetime
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
