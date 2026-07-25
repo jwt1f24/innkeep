@@ -105,6 +105,12 @@ class PricingRuleCreate(BaseModel):
     price_multiplier: Decimal | None = None
     fixed_price: Decimal | None = None
 
+class PricingRuleUpdate(BaseModel):
+    start_date: date | None = None
+    end_date: date | None = None
+    price_multiplier: Decimal | None = None
+    fixed_price: Decimal | None = None
+
 class PricingRuleOut(BaseModel):
     id: int
     room_type_id: int
