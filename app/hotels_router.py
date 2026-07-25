@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.dependencies import require_admin
 from app.models import User, Hotel
-from app.schemas import HotelCreate, HotelOut
+from app.schemas import HotelCreate, HotelUpdate, HotelOut
 from app.database import get_db
 
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
@@ -32,14 +32,18 @@ async def get_hotel_id(hotel_id: int, db: Session = Depends(get_db)):
 
 # update an existing hotel
 @router.put("/{hotel_id}", response_model=HotelOut)
-async def update_hotel(hotel_id: int, updated: HotelCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+async def update_hotel(hotel_id: int, updated: HotelUpdate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     hotel = db.get(Hotel, hotel_id)
     if hotel is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
 
-    hotel.name = updated.name
-    hotel.address = updated.address
-    hotel.description = updated.description
+    if updated.name is not None:
+        hotel.name = updated.name
+    if updated.address is not None:
+        hotel.address = updated.address
+    if updated.description is not None:
+        hotel.description = updated.description
+
     db.commit()
     db.refresh(hotel)
     return hotel

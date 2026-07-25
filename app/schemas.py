@@ -34,6 +34,11 @@ class HotelCreate(BaseModel):
     address: str
     description: str | None
 
+class HotelUpdate(BaseModel):
+    name: str | None = None
+    address: str | None = None
+    description: str | None = None
+
 class HotelOut(BaseModel):
     id: int
     name: str
