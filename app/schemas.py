@@ -32,7 +32,7 @@ class Token(BaseModel):
 class HotelCreate(BaseModel):
     name: str
     address: str
-    description: str | None
+    description: str | None = None
 
 class HotelUpdate(BaseModel):
     name: str | None = None
@@ -46,7 +46,7 @@ class HotelOut(BaseModel):
     description: str | None
     model_config = ConfigDict(from_attributes=True)
 
-# schema for hotel rooms
+# schema for hotel room types
 class RoomTypeCreate(BaseModel):
     hotel_id: int
     name: str
@@ -54,9 +54,9 @@ class RoomTypeCreate(BaseModel):
     accommodates: int
 
 class RoomTypeUpdate(BaseModel):
-    name: str
-    base_price: Decimal
-    accommodates: int
+    name: str | None = None
+    base_price: Decimal | None = None
+    accommodates: int | None = None
 
 class RoomTypeOut(BaseModel):
     id: int
@@ -66,9 +66,13 @@ class RoomTypeOut(BaseModel):
     accommodates: int
     model_config = ConfigDict(from_attributes=True)
 
+# schema for hotel rooms
 class RoomCreate(BaseModel):
     room_type_id: int
     room_number: int
+
+class RoomUpdate(BaseModel):
+    room_number: int | None = None
 
 class RoomOut(BaseModel):
     id: int
