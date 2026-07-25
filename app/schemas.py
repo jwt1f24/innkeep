@@ -53,6 +53,11 @@ class RoomTypeCreate(BaseModel):
     base_price: Decimal
     accommodates: int
 
+class RoomTypeUpdate(BaseModel):
+    name: str
+    base_price: Decimal
+    accommodates: int
+
 class RoomTypeOut(BaseModel):
     id: int
     hotel_id: int
