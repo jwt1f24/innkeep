@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.dependencies import get_current_user, require_staff_or_admin
-from app.models import User, Role, Payment, PaymentStatus, Booking
+from app.models import User, Role, Payment, PaymentStatus, Booking, BookingStatus
 from app.schemas import PaymentCreate, PaymentOut
 from app.database import get_db
 
@@ -14,11 +14,21 @@ async def create_payment(payment: PaymentCreate, current_user: User = Depends(ge
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
+    # prevent payment creation for cancelled bookings
+    if booking.status == BookingStatus.CANCELLED:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot pay for cancelled booking")
+
     if booking.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Booking does not belong to user")
 
-    conflict = db.query(Payment).filter(Payment.booking_id == booking.id).first()
-    if conflict is not None:
+    # reset a failed payment to pending
+    existing = db.query(Payment).filter(Payment.booking_id == booking.id).first()
+    if existing is not None:
+        if existing.status == PaymentStatus.FAILED:
+            existing.status = PaymentStatus.PENDING
+            db.commit()
+            db.refresh(existing)
+            return existing
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Payment for this booking already exists")
 
     new_payment = Payment(booking_id=payment.booking_id, amount=booking.total_price, status=PaymentStatus.PENDING)
@@ -57,6 +67,8 @@ async def confirm_payment(payment_id: int, admin: User = Depends(require_staff_o
 
     if payment.status == PaymentStatus.PENDING:
         payment.status = PaymentStatus.SUCCESS
+        booking = db.get(Booking, payment.booking_id)
+        booking.status = BookingStatus.CONFIRMED
 
     db.commit()
     db.refresh(payment)
@@ -85,6 +97,8 @@ async def refund_payment(payment_id: int, admin: User = Depends(require_staff_or
 
     if payment.status == PaymentStatus.SUCCESS:
         payment.status = PaymentStatus.REFUNDED
+        booking = db.get(Booking, payment.booking_id)
+        booking.status = BookingStatus.CANCELLED
 
     db.commit()
     db.refresh(payment)

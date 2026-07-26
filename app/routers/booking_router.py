@@ -85,7 +85,7 @@ async def cancel_booking(booking_id: int, current_user: User = Depends(get_curre
     if booking.user_id != current_user.id and current_user.role not in (Role.ADMIN, Role.STAFF):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
 
-    if booking.status in (BookingStatus.CANCELLED, BookingStatus.COMPLETED):
+    if booking.status == BookingStatus.CANCELLED:
         return booking
 
     booking.status = BookingStatus.CANCELLED
