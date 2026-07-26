@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 229c893c3969
+Revision ID: 21f7cbb8827e
 Revises: 
-Create Date: 2026-07-24 18:37:29.694001
+Create Date: 2026-07-27 01:38:22.129620
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '229c893c3969'
+revision: str = '21f7cbb8827e'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -38,23 +38,24 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
+    op.create_table('pricing_rules',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('hotel_id', sa.Integer(), nullable=False),
+    sa.Column('label', sa.String(), nullable=False),
+    sa.Column('start_date', sa.Date(), nullable=False),
+    sa.Column('end_date', sa.Date(), nullable=False),
+    sa.ForeignKeyConstraint(['hotel_id'], ['hotels.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('room_types',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('hotel_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('base_price', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('weekday_price', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('weekend_price', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('holiday_price', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('accommodates', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['hotel_id'], ['hotels.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('pricing_rules',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('room_type_id', sa.Integer(), nullable=False),
-    sa.Column('start_date', sa.Date(), nullable=False),
-    sa.Column('end_date', sa.Date(), nullable=False),
-    sa.Column('price_multiplier', sa.Numeric(precision=4, scale=2), nullable=True),
-    sa.Column('fixed_price', sa.Numeric(precision=10, scale=2), nullable=True),
-    sa.ForeignKeyConstraint(['room_type_id'], ['room_types.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('rooms',
@@ -70,7 +71,7 @@ def upgrade() -> None:
     sa.Column('room_id', sa.Integer(), nullable=False),
     sa.Column('check_in', sa.Date(), nullable=False),
     sa.Column('check_out', sa.Date(), nullable=False),
-    sa.Column('status', sa.Enum('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', name='bookingstatus'), nullable=False),
+    sa.Column('status', sa.Enum('PENDING', 'CONFIRMED', 'CANCELLED', name='bookingstatus'), nullable=False),
     sa.Column('total_price', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('date_created', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('check_out > check_in', name='check_out'),
@@ -97,8 +98,8 @@ def downgrade() -> None:
     op.drop_table('payments')
     op.drop_table('bookings')
     op.drop_table('rooms')
-    op.drop_table('pricing_rules')
     op.drop_table('room_types')
+    op.drop_table('pricing_rules')
     op.drop_table('users')
     op.drop_table('hotels')
     # ### end Alembic commands ###
