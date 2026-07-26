@@ -15,6 +15,10 @@ async def create_booking(booking: BookingCreate, current_user: User = Depends(ge
     if room is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
+    # date period logic handling
+    if booking.check_out <= booking.check_in:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
+
     # prevent overlapping bookings on a specific hotel room
     conflict = db.query(Booking).filter(
         Booking.room_id == booking.room_id,
