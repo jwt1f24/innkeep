@@ -105,7 +105,7 @@ class BookingOut(BaseModel):
 
 # schema for pricing rules
 class PricingRuleCreate(BaseModel):
-    room_type_id: int
+    hotel_id: int
     label: str
     start_date: date
     end_date: date
@@ -117,7 +117,7 @@ class PricingRuleUpdate(BaseModel):
 
 class PricingRuleOut(BaseModel):
     id: int
-    room_type_id: int
+    hotel_id: int
     label: str
     start_date: date
     end_date: date

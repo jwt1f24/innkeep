@@ -10,7 +10,7 @@ router = APIRouter(prefix="/pricing", tags=["Pricing"])
 # create a new pricing rule
 @router.post("/", response_model=PricingRuleOut)
 async def create_pricing_rule(pricing: PricingRuleCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    new_pricing_rule = PricingRule(room_type_id=pricing.room_type_id, label=pricing.label, start_date=pricing.start_date, end_date=pricing.end_date)
+    new_pricing_rule = PricingRule(hotel_id=pricing.hotel_id, label=pricing.label, start_date=pricing.start_date, end_date=pricing.end_date)
     db.add(new_pricing_rule)
     db.commit()
     db.refresh(new_pricing_rule)

@@ -67,7 +67,7 @@ class Booking(Base):
 class PricingRule(Base):
     __tablename__ = "pricing_rules"
     id: Mapped[int] = mapped_column(primary_key=True)
-    room_type_id: Mapped[int] = mapped_column(ForeignKey("room_types.id"), nullable=False)
+    hotel_id: Mapped[int] = mapped_column(ForeignKey("hotels.id"), nullable=False)
     label: Mapped[str] = mapped_column(String, nullable=False)
     start_date: Mapped[date] = mapped_column(nullable=False)
     end_date: Mapped[date] = mapped_column(nullable=False)

@@ -31,7 +31,7 @@ async def create_booking(booking: BookingCreate, current_user: User = Depends(ge
     curr = booking.check_in
     while curr < booking.check_out:
         holiday_period = db.query(PricingRule).filter(
-            PricingRule.room_type_id == room.room_type_id,
+            PricingRule.hotel_id == room_type.hotel_id,
             PricingRule.start_date <= curr,
             PricingRule.end_date >= curr,
         ).first()
