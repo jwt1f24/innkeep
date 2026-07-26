@@ -10,7 +10,7 @@ router = APIRouter(prefix="/room-types", tags=["Room Types"])
 # create a new room type
 @router.post("/", response_model=RoomTypeOut)
 async def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    new_type = RoomType(hotel_id=room_type.hotel_id, name=room_type.name, base_price=room_type.base_price, accommodates=room_type.accommodates)
+    new_type = RoomType(hotel_id=room_type.hotel_id, name=room_type.name, weekday_price=room_type.weekday_price, weekend_price=room_type.weekend_price, holiday_price=room_type.holiday_price, accommodates=room_type.accommodates)
     db.add(new_type)
     db.commit()
     db.refresh(new_type)
@@ -39,8 +39,12 @@ async def update_room_type(room_type_id: int, updated: RoomTypeUpdate, admin: Us
 
     if updated.name is not None:
         room_type.name = updated.name
-    if updated.base_price is not None:
-        room_type.base_price = updated.base_price
+    if updated.weekday_price is not None:
+        room_type.weekday_price = updated.weekday_price
+    if updated.weekend_price is not None:
+        room_type.weekend_price = updated.weekend_price
+    if updated.holiday_price is not None:
+        room_type.holiday_price = updated.holiday_price
     if updated.accommodates is not None:
         room_type.accommodates = updated.accommodates
 

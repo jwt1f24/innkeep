@@ -26,7 +26,9 @@ class RoomType(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     hotel_id: Mapped[int] = mapped_column(ForeignKey("hotels.id"), nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    base_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
+    weekday_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
+    weekend_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
+    holiday_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     accommodates: Mapped[int] = mapped_column(default=1, nullable=False)
 
 class Room(Base):
@@ -66,10 +68,9 @@ class PricingRule(Base):
     __tablename__ = "pricing_rules"
     id: Mapped[int] = mapped_column(primary_key=True)
     room_type_id: Mapped[int] = mapped_column(ForeignKey("room_types.id"), nullable=False)
+    label: Mapped[str] = mapped_column(String, nullable=False)
     start_date: Mapped[date] = mapped_column(nullable=False)
     end_date: Mapped[date] = mapped_column(nullable=False)
-    price_multiplier: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True)
-    fixed_price: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
 
 # model for payment
 class PaymentStatus(enum.Enum):

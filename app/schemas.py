@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from app.models import Role, BookingStatus, PaymentStatus
 from datetime import datetime, date
 from decimal import Decimal
+from app.models import Role, BookingStatus, PaymentStatus
 
 # schema for users, validate incoming & outgoing user data
 class UserCreate(BaseModel):
@@ -50,19 +50,25 @@ class HotelOut(BaseModel):
 class RoomTypeCreate(BaseModel):
     hotel_id: int
     name: str
-    base_price: Decimal
+    weekday_price: Decimal
+    weekend_price: Decimal
+    holiday_price: Decimal
     accommodates: int
 
 class RoomTypeUpdate(BaseModel):
     name: str | None = None
-    base_price: Decimal | None = None
+    weekday_price: Decimal | None = None
+    weekend_price: Decimal | None = None
+    holiday_price: Decimal | None = None
     accommodates: int | None = None
 
 class RoomTypeOut(BaseModel):
     id: int
     hotel_id: int
     name: str
-    base_price: Decimal
+    weekday_price: Decimal
+    weekend_price: Decimal
+    holiday_price: Decimal
     accommodates: int
     model_config = ConfigDict(from_attributes=True)
 
@@ -100,24 +106,21 @@ class BookingOut(BaseModel):
 # schema for pricing rules
 class PricingRuleCreate(BaseModel):
     room_type_id: int
+    label: str
     start_date: date
     end_date: date
-    price_multiplier: Decimal | None = None
-    fixed_price: Decimal | None = None
 
 class PricingRuleUpdate(BaseModel):
+    label: str | None = None
     start_date: date | None = None
     end_date: date | None = None
-    price_multiplier: Decimal | None = None
-    fixed_price: Decimal | None = None
 
 class PricingRuleOut(BaseModel):
     id: int
     room_type_id: int
+    label: str
     start_date: date
     end_date: date
-    price_multiplier: Decimal | None = None
-    fixed_price: Decimal | None = None
     model_config = ConfigDict(from_attributes=True)
 
 # schema for payment

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import timedelta
 from app.dependencies import get_current_user
-from app.models import User, Room, RoomType, Booking, BookingStatus, Role
+from app.models import User, Room, RoomType, Booking, BookingStatus, Role, PricingRule
 from app.schemas import BookingCreate, BookingOut
 from app.database import get_db
 
@@ -24,12 +25,27 @@ async def create_booking(booking: BookingCreate, current_user: User = Depends(ge
     if conflict is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This room has been booked")
 
-    # create booking object
+    # check price based on time period
     room_type = db.get(RoomType, room.room_type_id)
-    nights = (booking.check_out - booking.check_in).days
-    total_price = room_type.base_price * nights
-    new_booking = Booking(user_id=current_user.id, room_id=booking.room_id, check_in=booking.check_in, check_out=booking.check_out, status=BookingStatus.PENDING, total_price=total_price)
+    total_price = 0
+    curr = booking.check_in
+    while curr < booking.check_out:
+        holiday_period = db.query(PricingRule).filter(
+            PricingRule.room_type_id == room.room_type_id,
+            PricingRule.start_date <= curr,
+            PricingRule.end_date >= curr,
+        ).first()
 
+        if holiday_period is not None:
+            total_price += room_type.holiday_price
+        elif curr.weekday() in (5, 6):
+            total_price += room_type.weekend_price
+        else:
+            total_price += room_type.weekday_price
+        curr += timedelta(days=1)
+
+    # create booking object & commit to database
+    new_booking = Booking(user_id=current_user.id, room_id=booking.room_id, check_in=booking.check_in, check_out=booking.check_out, status=BookingStatus.PENDING, total_price=total_price)
     db.add(new_booking)
     db.commit()
     db.refresh(new_booking)

@@ -10,7 +10,7 @@ router = APIRouter(prefix="/pricing", tags=["Pricing"])
 # create a new pricing rule
 @router.post("/", response_model=PricingRuleOut)
 async def create_pricing_rule(pricing: PricingRuleCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    new_pricing_rule = PricingRule(room_type_id=pricing.room_type_id, start_date=pricing.start_date, end_date=pricing.end_date, price_multiplier=pricing.price_multiplier, fixed_price=pricing.fixed_price)
+    new_pricing_rule = PricingRule(room_type_id=pricing.room_type_id, label=pricing.label, start_date=pricing.start_date, end_date=pricing.end_date)
     db.add(new_pricing_rule)
     db.commit()
     db.refresh(new_pricing_rule)
@@ -37,14 +37,12 @@ async def update_pricing_rule(pricing_rule_id: int, updated: PricingRuleUpdate, 
     if pricing_rule is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pricing rule not found")
 
+    if updated.label is not None:
+        pricing_rule.label = updated.label
     if updated.start_date is not None:
         pricing_rule.start_date = updated.start_date
     if updated.end_date is not None:
         pricing_rule.end_date = updated.end_date
-    if updated.price_multiplier is not None:
-        pricing_rule.price_multiplier = updated.price_multiplier
-    if updated.fixed_price is not None:
-        pricing_rule.fixed_price = updated.fixed_price
 
     db.commit()
     db.refresh(pricing_rule)
