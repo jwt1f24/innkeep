@@ -10,6 +10,14 @@ router = APIRouter(prefix="/room-types", tags=["Room Types"])
 # create a new room type
 @router.post("/", response_model=RoomTypeOut)
 async def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    # prevent duplicate room types at the same hotel
+    existing = db.query(RoomType).filter(
+        RoomType.hotel_id == room_type.hotel_id,
+        RoomType.name == room_type.name,
+    ).first()
+    if existing is not None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type already exists at this hotel")
+
     new_type = RoomType(hotel_id=room_type.hotel_id, name=room_type.name, weekday_price=room_type.weekday_price, weekend_price=room_type.weekend_price, holiday_price=room_type.holiday_price, accommodates=room_type.accommodates)
     db.add(new_type)
     db.commit()
