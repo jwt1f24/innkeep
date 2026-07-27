@@ -13,6 +13,7 @@ async def create_hotel(hotel: HotelCreate, admin: User = Depends(require_admin),
     # empty required input edge case
     if not hotel.name.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Hotel name required")
+
     if not hotel.address.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Hotel address required")
 
@@ -48,10 +49,12 @@ async def update_hotel(hotel_id: int, updated: HotelUpdate, admin: User = Depend
         if not updated.name.strip():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name cannot be empty")
         hotel.name = updated.name
+
     if updated.address is not None:
         if not updated.address.strip():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Address cannot be empty")
         hotel.address = updated.address
+
     if updated.description is not None:
         hotel.description = updated.description
 
