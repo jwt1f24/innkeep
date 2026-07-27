@@ -25,11 +25,11 @@ async def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(requ
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Accommodates must be at least 1")
 
     # prevent duplicate room types at the same hotel
-    existing = db.query(RoomType).filter(
+    duplicate = db.query(RoomType).filter(
         RoomType.hotel_id == room_type.hotel_id,
         RoomType.name == room_type.name,
     ).first()
-    if existing is not None:
+    if duplicate is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type already exists at this hotel")
 
     new_type = RoomType(hotel_id=room_type.hotel_id, name=room_type.name, weekday_price=room_type.weekday_price, weekend_price=room_type.weekend_price, holiday_price=room_type.holiday_price, accommodates=room_type.accommodates)
