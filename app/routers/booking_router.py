@@ -32,21 +32,21 @@ async def create_booking(booking: BookingCreate, current_user: User = Depends(ge
     # check price based on time period
     room_type = db.get(RoomType, room.room_type_id)
     total_price = 0
-    curr = booking.check_in
-    while curr < booking.check_out:
+    current_date = booking.check_in
+    while current_date < booking.check_out:
         holiday_period = db.query(PricingRule).filter(
             PricingRule.hotel_id == room_type.hotel_id,
-            PricingRule.start_date <= curr,
-            PricingRule.end_date >= curr,
+            PricingRule.start_date <= current_date,
+            PricingRule.end_date >= current_date,
         ).first()
 
         if holiday_period is not None:
             total_price += room_type.holiday_price
-        elif curr.weekday() in (5, 6):
+        elif current_date.weekday() in (5, 6):
             total_price += room_type.weekend_price
         else:
             total_price += room_type.weekday_price
-        curr += timedelta(days=1)
+        current_date += timedelta(days=1)
 
     # create booking object & commit to database
     new_booking = Booking(user_id=current_user.id, room_id=booking.room_id, check_in=booking.check_in, check_out=booking.check_out, status=BookingStatus.PENDING, total_price=total_price)
@@ -82,11 +82,15 @@ async def cancel_booking(booking_id: int, current_user: User = Depends(get_curre
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
+    # user auth edge case
     if booking.user_id != current_user.id and current_user.role not in (Role.ADMIN, Role.STAFF):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
 
+    # cancel edge cases
     if booking.status == BookingStatus.CANCELLED:
-        return booking
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Booking is already cancelled")
+    elif booking.status == BookingStatus.CONFIRMED:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to cancel a completed booking")
 
     booking.status = BookingStatus.CANCELLED
     db.commit()

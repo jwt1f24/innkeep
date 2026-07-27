@@ -65,11 +65,12 @@ async def confirm_payment(payment_id: int, admin: User = Depends(require_staff_o
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
 
-    if payment.status == PaymentStatus.PENDING:
-        payment.status = PaymentStatus.SUCCESS
-        booking = db.get(Booking, payment.booking_id)
-        booking.status = BookingStatus.CONFIRMED
+    if payment.status != PaymentStatus.PENDING:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Cannot confirm a payment that is not pending")
 
+    payment.status = PaymentStatus.SUCCESS
+    booking = db.get(Booking, payment.booking_id)
+    booking.status = BookingStatus.CONFIRMED
     db.commit()
     db.refresh(payment)
     return payment
@@ -81,9 +82,10 @@ async def cancel_payment(payment_id: int, admin: User = Depends(require_staff_or
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
 
-    if payment.status == PaymentStatus.PENDING:
-        payment.status = PaymentStatus.FAILED
+    if payment.status != PaymentStatus.PENDING:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Cannot cancel a payment that is not pending")
 
+    payment.status = PaymentStatus.FAILED
     db.commit()
     db.refresh(payment)
     return payment
@@ -95,11 +97,12 @@ async def refund_payment(payment_id: int, admin: User = Depends(require_staff_or
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
 
-    if payment.status == PaymentStatus.SUCCESS:
-        payment.status = PaymentStatus.REFUNDED
-        booking = db.get(Booking, payment.booking_id)
-        booking.status = BookingStatus.CANCELLED
+    if payment.status != PaymentStatus.SUCCESS:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Cannot refund a payment that is not successful")
 
+    payment.status = PaymentStatus.REFUNDED
+    booking = db.get(Booking, payment.booking_id)
+    booking.status = BookingStatus.CANCELLED
     db.commit()
     db.refresh(payment)
     return payment

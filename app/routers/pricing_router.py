@@ -14,6 +14,9 @@ async def create_pricing_rule(pricing: PricingRuleCreate, admin: User = Depends(
     if hotel is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
 
+    if not pricing.label.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Label cannot be empty")
+
     # date period logic handling
     if pricing.end_date <= pricing.start_date:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
@@ -79,20 +82,28 @@ async def update_pricing_rule(pricing_rule_id: int, updated: PricingRuleUpdate, 
         if existing_label is not None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A pricing rule already exists with this label for this hotel")
 
-    conflict = db.query(PricingRule).filter(
+    duplicate = db.query(PricingRule).filter(
         PricingRule.hotel_id == pricing_rule.hotel_id,
         PricingRule.start_date <= new_end,
         PricingRule.end_date >= new_start,
         PricingRule.id != pricing_rule_id
     ).first()
-    if conflict is not None:
+    if duplicate is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A pricing rule already exists that overlaps these dates for this hotel")
 
     if updated.label is not None:
+        if not updated.label.strip():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Label cannot be empty")
         pricing_rule.label = updated.label
+
     if updated.start_date is not None:
+        if updated.end_date <= updated.start_date:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
         pricing_rule.start_date = updated.start_date
+
     if updated.end_date is not None:
+        if updated.end_date <= updated.start_date:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
         pricing_rule.end_date = updated.end_date
 
     db.commit()
