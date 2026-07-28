@@ -9,14 +9,16 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 
 # create a new payment
 @router.post("/", response_model=PaymentOut)
-async def create_payment(payment: PaymentCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def create_payment(payment: PaymentCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     booking = db.get(Booking, payment.booking_id)
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
-    # prevent payment creation for cancelled bookings
     if booking.status == BookingStatus.CANCELLED:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot pay for cancelled booking")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot make payment for an already cancelled booking")
+
+    if booking.status == BookingStatus.CONFIRMED:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot make payment for an already confirmed booking")
 
     if booking.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Booking does not belong to user")
@@ -39,7 +41,7 @@ async def create_payment(payment: PaymentCreate, current_user: User = Depends(ge
 
 # fetch all existing payments
 @router.get("/", response_model=list[PaymentOut])
-async def get_all_payments(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_all_payments(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role in (Role.ADMIN, Role.STAFF):
         fetch_payments = db.query(Payment).all()
     else:
@@ -48,7 +50,7 @@ async def get_all_payments(current_user: User = Depends(get_current_user), db: S
 
 # fetch payment by id
 @router.get("/{payment_id}", response_model=PaymentOut)
-async def get_payment_id(payment_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_payment_id(payment_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     payment = db.get(Payment, payment_id)
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
@@ -60,7 +62,7 @@ async def get_payment_id(payment_id: int, current_user: User = Depends(get_curre
 
 # mark a payment as success
 @router.patch("/{payment_id}/confirm", response_model=PaymentOut)
-async def confirm_payment(payment_id: int, admin: User = Depends(require_staff_or_admin), db: Session = Depends(get_db)):
+def confirm_payment(payment_id: int, admin: User = Depends(require_staff_or_admin), db: Session = Depends(get_db)):
     payment = db.get(Payment, payment_id)
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
@@ -68,8 +70,11 @@ async def confirm_payment(payment_id: int, admin: User = Depends(require_staff_o
     if payment.status != PaymentStatus.PENDING:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Cannot confirm a payment that is not pending")
 
-    payment.status = PaymentStatus.SUCCESS
     booking = db.get(Booking, payment.booking_id)
+    if booking.status == BookingStatus.CANCELLED:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Cannot confirm payment on a cancelled booking")
+
+    payment.status = PaymentStatus.SUCCESS
     booking.status = BookingStatus.CONFIRMED
     db.commit()
     db.refresh(payment)
@@ -77,7 +82,7 @@ async def confirm_payment(payment_id: int, admin: User = Depends(require_staff_o
 
 # cancel a payment
 @router.patch("/{payment_id}/fail", response_model=PaymentOut)
-async def cancel_payment(payment_id: int, admin: User = Depends(require_staff_or_admin), db: Session = Depends(get_db)):
+def cancel_payment(payment_id: int, admin: User = Depends(require_staff_or_admin), db: Session = Depends(get_db)):
     payment = db.get(Payment, payment_id)
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
@@ -92,7 +97,7 @@ async def cancel_payment(payment_id: int, admin: User = Depends(require_staff_or
 
 # refund a payment
 @router.patch("/{payment_id}/refund", response_model=PaymentOut)
-async def refund_payment(payment_id: int, admin: User = Depends(require_staff_or_admin), db: Session = Depends(get_db)):
+def refund_payment(payment_id: int, admin: User = Depends(require_staff_or_admin), db: Session = Depends(get_db)):
     payment = db.get(Payment, payment_id)
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")

@@ -9,7 +9,7 @@ router = APIRouter(prefix="/pricing", tags=["Pricing"])
 
 # create a new pricing rule
 @router.post("/", response_model=PricingRuleOut)
-async def create_pricing_rule(pricing: PricingRuleCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def create_pricing_rule(pricing: PricingRuleCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     hotel = db.get(Hotel, pricing.hotel_id)
     if hotel is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
@@ -47,13 +47,13 @@ async def create_pricing_rule(pricing: PricingRuleCreate, admin: User = Depends(
 
 # fetch all existing pricing rules
 @router.get("/", response_model=list[PricingRuleOut])
-async def get_all_pricing_rules(db: Session = Depends(get_db)):
+def get_all_pricing_rules(db: Session = Depends(get_db)):
     fetch_pricing_rules = db.query(PricingRule).all()
     return fetch_pricing_rules
 
 # fetch pricing rule by id
 @router.get("/{pricing_rule_id}", response_model=PricingRuleOut)
-async def get_pricing_rule_id(pricing_rule_id: int, db: Session = Depends(get_db)):
+def get_pricing_rule_id(pricing_rule_id: int, db: Session = Depends(get_db)):
     pricing_rule = db.get(PricingRule, pricing_rule_id)
     if pricing_rule is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pricing rule not found")
@@ -61,26 +61,29 @@ async def get_pricing_rule_id(pricing_rule_id: int, db: Session = Depends(get_db
 
 # update an existing pricing rule
 @router.put("/{pricing_rule_id}", response_model=PricingRuleOut)
-async def update_pricing_rule(pricing_rule_id: int, updated: PricingRuleUpdate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def update_pricing_rule(pricing_rule_id: int, updated: PricingRuleUpdate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     pricing_rule = db.get(PricingRule, pricing_rule_id)
     if pricing_rule is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pricing rule not found")
 
     # prevent overlapping dates & duplicate names for a specific hotel
+    new_label = updated.label.strip() if updated.label is not None else pricing_rule.label
     new_start = updated.start_date if updated.start_date is not None else pricing_rule.start_date
     new_end = updated.end_date if updated.end_date is not None else pricing_rule.end_date
+
+    if not new_label:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Label cannot be empty")
 
     if new_end <= new_start:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
 
-    if updated.label is not None:
-        existing_label = db.query(PricingRule).filter(
-            PricingRule.hotel_id == pricing_rule.hotel_id,
-            PricingRule.label == updated.label,
-            PricingRule.id != pricing_rule_id
-        ).first()
-        if existing_label is not None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A pricing rule already exists with this label for this hotel")
+    existing_label = db.query(PricingRule).filter(
+        PricingRule.hotel_id == pricing_rule.hotel_id,
+        PricingRule.label == new_label,
+        PricingRule.id != pricing_rule_id
+    ).first()
+    if existing_label:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A pricing rule already exists with this label for this hotel")
 
     duplicate = db.query(PricingRule).filter(
         PricingRule.hotel_id == pricing_rule.hotel_id,
@@ -88,23 +91,12 @@ async def update_pricing_rule(pricing_rule_id: int, updated: PricingRuleUpdate, 
         PricingRule.end_date >= new_start,
         PricingRule.id != pricing_rule_id
     ).first()
-    if duplicate is not None:
+    if duplicate:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A pricing rule already exists that overlaps these dates for this hotel")
 
-    if updated.label is not None:
-        if not updated.label.strip():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Label cannot be empty")
-        pricing_rule.label = updated.label
-
-    if updated.start_date is not None:
-        if updated.end_date <= updated.start_date:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
-        pricing_rule.start_date = updated.start_date
-
-    if updated.end_date is not None:
-        if updated.end_date <= updated.start_date:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
-        pricing_rule.end_date = updated.end_date
+    pricing_rule.label = new_label
+    pricing_rule.start_date = new_start
+    pricing_rule.end_date = new_end
 
     db.commit()
     db.refresh(pricing_rule)
@@ -112,7 +104,7 @@ async def update_pricing_rule(pricing_rule_id: int, updated: PricingRuleUpdate, 
 
 # delete an existing pricing rule
 @router.delete("/{pricing_rule_id}", response_model=PricingRuleOut)
-async def delete_pricing_rule(pricing_rule_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def delete_pricing_rule(pricing_rule_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     pricing_rule = db.get(PricingRule, pricing_rule_id)
     if pricing_rule is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pricing rule not found")

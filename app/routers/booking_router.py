@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from app.dependencies import get_current_user
-from app.models import User, Room, RoomType, Booking, BookingStatus, Role, PricingRule
+from app.models import User, Room, RoomType, Booking, BookingStatus, Role, PricingRule, Payment, PaymentStatus
 from app.schemas import BookingCreate, BookingOut
 from app.database import get_db
 
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
 # create a new booking
 @router.post("/", response_model=BookingOut)
-async def create_booking(booking: BookingCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def create_booking(booking: BookingCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     room = db.get(Room, booking.room_id)
     if room is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
@@ -57,7 +57,7 @@ async def create_booking(booking: BookingCreate, current_user: User = Depends(ge
 
 # fetch all existing bookings
 @router.get("/", response_model=list[BookingOut])
-async def get_all_bookings(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_all_bookings(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role in (Role.ADMIN, Role.STAFF):
         fetch_bookings = db.query(Booking).all()
     else:
@@ -66,7 +66,7 @@ async def get_all_bookings(current_user: User = Depends(get_current_user), db: S
 
 # fetch booking by id
 @router.get("/{booking_id}", response_model=BookingOut)
-async def get_booking_id(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_booking_id(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     booking = db.get(Booking, booking_id)
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
@@ -77,7 +77,7 @@ async def get_booking_id(booking_id: int, current_user: User = Depends(get_curre
 
 # cancel an existing booking
 @router.patch("/{booking_id}/cancel", response_model=BookingOut)
-async def cancel_booking(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def cancel_booking(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     booking = db.get(Booking, booking_id)
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
@@ -88,11 +88,16 @@ async def cancel_booking(booking_id: int, current_user: User = Depends(get_curre
 
     # cancel edge cases
     if booking.status == BookingStatus.CANCELLED:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Booking is already cancelled")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to cancel an already cancelled booking")
     elif booking.status == BookingStatus.CONFIRMED:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to cancel a completed booking")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to cancel an already confirmed booking")
 
+    # cancel payment as well when booking itself is cancelled
     booking.status = BookingStatus.CANCELLED
+    payment = db.query(Payment).filter(Payment.booking_id == booking.id).first()
+    if payment is not None and payment.status == PaymentStatus.PENDING:
+        payment.status = PaymentStatus.FAILED
+
     db.commit()
     db.refresh(booking)
     return booking
