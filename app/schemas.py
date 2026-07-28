@@ -1,13 +1,23 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
 from datetime import datetime, date
 from decimal import Decimal
 from app.models import Role, BookingStatus, PaymentStatus
 
 # schema for users, validate incoming & outgoing user data
 class UserCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=255)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8, max_length=64)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, password: str) -> str:
+        pw = password.strip()
+        if not pw:
+            raise ValueError("Password cannot contain only whitespaces")
+        if len(pw.encode("utf-8")) > 64:
+            raise ValueError("Password too long (max 64 characters)")
+        return pw
 
 # validate user login info
 class UserLogin(BaseModel):

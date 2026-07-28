@@ -9,14 +9,18 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # fetch user token & id
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    decoded_token = decode_access_token(token)
-    if decoded_token is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    invalid_token = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token", headers={"WWW-Authenticate": "Bearer"})
+    try:
+        decoded_token = decode_access_token(token)
+        if decoded_token is None:
+            raise invalid_token
+        user_id = int(decoded_token["sub"])
+    except (KeyError, ValueError, TypeError):
+        raise invalid_token
 
-    user_id = int(decoded_token["sub"])
     user = db.get(User, user_id)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found", headers={"WWW-Authenticate": "Bearer"})
     return user
 
 # verify higher user role permissions

@@ -52,7 +52,7 @@ class BookingStatus(enum.Enum):
 
 class Booking(Base):
     __tablename__ = "bookings"
-    __table_args__ = (CheckConstraint("check_out > check_in", name="check_out"),)
+    __table_args__ = (CheckConstraint("check_out > check_in", name="check_out_after_check_in"),)
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"), nullable=False)
