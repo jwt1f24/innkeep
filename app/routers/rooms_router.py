@@ -18,12 +18,9 @@ def create_room(room: RoomCreate, admin: User = Depends(require_admin), db: Sess
     if room.room_number <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room number must greater than 0")
 
-    duplicate = db.query(Room).join(RoomType, Room.room_type_id == RoomType.id).filter(
-        RoomType.hotel_id == room_type.hotel_id,
-        Room.room_number == room.room_number,
-    ).first()
+    duplicate = db.query(Room).filter(Room.room_number == room.room_number).first()
     if duplicate is not None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room number already exists at this hotel")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room number already exists")
 
     new_room = Room(room_type_id=room.room_type_id, room_number=room.room_number)
     db.add(new_room)
@@ -57,14 +54,12 @@ def update_room(room_id: int, updated: RoomUpdate, admin: User = Depends(require
         if updated.room_number <= 0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room number must greater than 0")
 
-        room_type = db.get(RoomType, room.room_type_id)
-        duplicate = db.query(Room).join(RoomType, Room.room_type_id == RoomType.id).filter(
-            RoomType.hotel_id == room_type.hotel_id,
+        duplicate = db.query(Room).filter(
             Room.room_number == updated.room_number,
             Room.id != room_id
         ).first()
         if duplicate is not None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room number already exists at this hotel")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room number already exists")
 
         room.room_number = updated.room_number
 

@@ -24,7 +24,6 @@ class User(Base):
 class RoomType(Base):
     __tablename__ = "room_types"
     id: Mapped[int] = mapped_column(primary_key=True)
-    hotel_id: Mapped[int] = mapped_column(ForeignKey("hotels.id"), nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     weekday_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     weekend_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
@@ -36,13 +35,6 @@ class Room(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     room_type_id: Mapped[int] = mapped_column(ForeignKey("room_types.id"), nullable=False)
     room_number: Mapped[int] = mapped_column(nullable=False)
-
-class Hotel(Base):
-    __tablename__ = "hotels"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    address: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str | None] = mapped_column(String, nullable=True)
 
 # model for booking
 class BookingStatus(enum.Enum):
@@ -66,7 +58,6 @@ class Booking(Base):
 class PricingRule(Base):
     __tablename__ = "pricing_rules"
     id: Mapped[int] = mapped_column(primary_key=True)
-    hotel_id: Mapped[int] = mapped_column(ForeignKey("hotels.id"), nullable=False)
     label: Mapped[str] = mapped_column(String, nullable=False)
     start_date: Mapped[date] = mapped_column(nullable=False)
     end_date: Mapped[date] = mapped_column(nullable=False)

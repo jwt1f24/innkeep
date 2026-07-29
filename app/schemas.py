@@ -38,27 +38,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-# schema for hotel
-class HotelCreate(BaseModel):
-    name: str
-    address: str
-    description: str | None = None
-
-class HotelUpdate(BaseModel):
-    name: str | None = None
-    address: str | None = None
-    description: str | None = None
-
-class HotelOut(BaseModel):
-    id: int
-    name: str
-    address: str
-    description: str | None
-    model_config = ConfigDict(from_attributes=True)
-
 # schema for hotel room types
 class RoomTypeCreate(BaseModel):
-    hotel_id: int
     name: str
     weekday_price: Decimal
     weekend_price: Decimal
@@ -74,7 +55,6 @@ class RoomTypeUpdate(BaseModel):
 
 class RoomTypeOut(BaseModel):
     id: int
-    hotel_id: int
     name: str
     weekday_price: Decimal
     weekend_price: Decimal
@@ -115,7 +95,6 @@ class BookingOut(BaseModel):
 
 # schema for pricing rules
 class PricingRuleCreate(BaseModel):
-    hotel_id: int
     label: str
     start_date: date
     end_date: date
@@ -127,7 +106,6 @@ class PricingRuleUpdate(BaseModel):
 
 class PricingRuleOut(BaseModel):
     id: int
-    hotel_id: int
     label: str
     start_date: date
     end_date: date

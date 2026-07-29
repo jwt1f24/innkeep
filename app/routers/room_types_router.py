@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.dependencies import require_admin
-from app.models import User, Hotel, RoomType, Room
+from app.models import User, RoomType, Room
 from app.schemas import RoomTypeCreate, RoomTypeUpdate, RoomTypeOut
 from app.database import get_db
 
@@ -10,11 +10,7 @@ router = APIRouter(prefix="/room-types", tags=["Room Types"])
 # create a new room type
 @router.post("/", response_model=RoomTypeOut)
 def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    # empty required input edge case
-    hotel = db.get(Hotel, room_type.hotel_id)
-    if hotel is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
-
+    # input edge case
     if not room_type.name.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type name cannot be empty")
 
@@ -25,14 +21,11 @@ def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_ad
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Accommodates must be at least 1")
 
     # prevent duplicate room types at the same hotel
-    duplicate = db.query(RoomType).filter(
-        RoomType.hotel_id == room_type.hotel_id,
-        RoomType.name == room_type.name,
-    ).first()
+    duplicate = db.query(RoomType).filter(RoomType.name == room_type.name).first()
     if duplicate is not None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type already exists at this hotel")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type already exists")
 
-    new_type = RoomType(hotel_id=room_type.hotel_id, name=room_type.name, weekday_price=room_type.weekday_price, weekend_price=room_type.weekend_price, holiday_price=room_type.holiday_price, accommodates=room_type.accommodates)
+    new_type = RoomType(name=room_type.name, weekday_price=room_type.weekday_price, weekend_price=room_type.weekend_price, holiday_price=room_type.holiday_price, accommodates=room_type.accommodates)
     db.add(new_type)
     db.commit()
     db.refresh(new_type)

@@ -35,7 +35,6 @@ def create_booking(booking: BookingCreate, current_user: User = Depends(get_curr
     current_date = booking.check_in
     while current_date < booking.check_out:
         holiday_period = db.query(PricingRule).filter(
-            PricingRule.hotel_id == room_type.hotel_id,
             PricingRule.start_date <= current_date,
             PricingRule.end_date >= current_date,
         ).first()
