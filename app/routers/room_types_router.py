@@ -11,8 +11,14 @@ router = APIRouter(prefix="/room-types", tags=["Room Types"])
 @router.post("/", response_model=RoomTypeOut)
 def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     # input edge case
-    if not room_type.name.strip():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type name cannot be empty")
+    if not room_type.name.strip() or not room_type.description.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name & description cannot be empty")
+
+    if room_type.single_beds < 0 or room_type.king_beds < 0 or room_type.queen_beds < 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid bed count")
+
+    if room_type.single_beds > 3 or room_type.king_beds > 3 or room_type.queen_beds > 3:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many beds")
 
     if room_type.weekday_price <= 0 or room_type.weekend_price <= 0 or room_type.holiday_price <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Prices must be greater than zero")
@@ -25,7 +31,17 @@ def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_ad
     if duplicate is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type already exists")
 
-    new_type = RoomType(name=room_type.name, weekday_price=room_type.weekday_price, weekend_price=room_type.weekend_price, holiday_price=room_type.holiday_price, accommodates=room_type.accommodates)
+    new_type = RoomType(
+        name=room_type.name,
+        description=room_type.description,
+        single_beds=room_type.single_beds,
+        king_beds=room_type.king_beds,
+        queen_beds=room_type.queen_beds,
+        weekday_price=room_type.weekday_price,
+        weekend_price=room_type.weekend_price,
+        holiday_price=room_type.holiday_price,
+        accommodates=room_type.accommodates
+    )
     db.add(new_type)
     db.commit()
     db.refresh(new_type)
@@ -58,20 +74,24 @@ def update_room_type(room_type_id: int, updated: RoomTypeUpdate, admin: User = D
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name cannot be empty")
         room_type.name = updated.name
 
-    if updated.weekday_price is not None:
-        if updated.weekday_price <= 0:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Price must greater than 0")
-        room_type.weekday_price = updated.weekday_price
+    if updated.description is not None:
+        if not updated.description.strip():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Description cannot be empty")
+        room_type.description = updated.description
 
-    if updated.weekend_price is not None:
-        if updated.weekend_price <= 0:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Price must greater than 0")
-        room_type.weekend_price = updated.weekend_price
+    for bed in ("single_beds", "king_beds", "queen_beds"):
+        value = getattr(updated, bed)
+        if value is not None:
+            if value < 0 or value > 3:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bed count must be between 0 and 3")
+            setattr(room_type, bed, value)
 
-    if updated.holiday_price is not None:
-        if updated.holiday_price <= 0:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Price must greater than 0")
-        room_type.holiday_price = updated.holiday_price
+    for price in ("weekday_price", "weekend_price", "holiday_price"):
+        value = getattr(updated, price)
+        if value is not None:
+            if value <= 0:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Price must be greater than 0")
+            setattr(room_type, price, value)
 
     if updated.accommodates is not None:
         if updated.accommodates < 1:

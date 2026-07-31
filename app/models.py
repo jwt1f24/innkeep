@@ -25,10 +25,20 @@ class RoomType(Base):
     __tablename__ = "room_types"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    single_beds: Mapped[int] = mapped_column(default=0, nullable=False)
+    king_beds: Mapped[int] = mapped_column(default=0, nullable=False)
+    queen_beds: Mapped[int] = mapped_column(default=0, nullable=False)
     weekday_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     weekend_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     holiday_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     accommodates: Mapped[int] = mapped_column(default=1, nullable=False)
+
+class RoomImage(Base):
+    __tablename__ = "room_images"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    room_type_id: Mapped[int] = mapped_column(ForeignKey("room_types.id"), nullable=False)
+    image_url: Mapped[str] = mapped_column(String, nullable=False)
 
 class Room(Base):
     __tablename__ = "rooms"

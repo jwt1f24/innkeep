@@ -41,6 +41,10 @@ class Token(BaseModel):
 # schema for hotel room types
 class RoomTypeCreate(BaseModel):
     name: str
+    description: str
+    single_beds: int
+    king_beds: int
+    queen_beds: int
     weekday_price: Decimal
     weekend_price: Decimal
     holiday_price: Decimal
@@ -48,6 +52,10 @@ class RoomTypeCreate(BaseModel):
 
 class RoomTypeUpdate(BaseModel):
     name: str | None = None
+    description: str | None = None
+    single_beds: int | None = None
+    king_beds: int | None = None
+    queen_beds: int | None = None
     weekday_price: Decimal | None = None
     weekend_price: Decimal | None = None
     holiday_price: Decimal | None = None
@@ -56,10 +64,28 @@ class RoomTypeUpdate(BaseModel):
 class RoomTypeOut(BaseModel):
     id: int
     name: str
+    description: str
+    single_beds: int
+    king_beds: int
+    queen_beds: int
     weekday_price: Decimal
     weekend_price: Decimal
     holiday_price: Decimal
     accommodates: int
+    model_config = ConfigDict(from_attributes=True)
+
+# schema for hotel room images
+class RoomImageCreate(BaseModel):
+    room_type_id: int
+    image_url: str
+
+class RoomImageUpdate(BaseModel):
+    image_url: str | None = None
+
+class RoomImageOut(BaseModel):
+    id: int
+    room_type_id: int
+    image_url: str
     model_config = ConfigDict(from_attributes=True)
 
 # schema for hotel rooms
