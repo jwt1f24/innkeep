@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Carousel from '../components/Carousel'
+import HomeCarousel from '../components/HomeCarousel'
 
 export default function Home() {
     const today = new Date().toISOString().split("T")[0]
@@ -72,7 +72,7 @@ export default function Home() {
                 </div>
                 
                 {/* image carousel */}
-                <Carousel/>
+                <HomeCarousel/>
             </div>
 
             {/* amenities section */}
