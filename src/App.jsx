@@ -6,13 +6,10 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import Rooms from './pages/Rooms'
 import Login from './pages/Login'
+import Register from './pages/Register'
 
 function Bookings() {
   return <div className="p-6 text-white">Your bookings (protected)</div>
-}
-
-function Register() {
-  return <div className="p-6 text-white">Register</div>
 }
 
 export default function App() {
