@@ -21,3 +21,18 @@ export async function login(email, password) {
     // return JSON parsed token and its type if validated
     return res.json()
 }
+
+export async function register(name, email, password) {
+    const res = await fetch(`${BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+    })
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.detail || "Registration failed")
+    }
+
+    return res.json()
+}
