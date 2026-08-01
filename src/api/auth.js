@@ -15,7 +15,15 @@ export async function login(email, password) {
     // throw error if request failed
     if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.detail || "Login failed")
+        let message = "Login failed, invalid input."
+
+        if (typeof err.detail === "string") {
+            message = err.detail
+        } else if (Array.isArray(err.detail)) {
+            message = err.detail.map((e) => e.msg).join(", ")
+        }
+
+        throw new Error(message)
     }
 
     // return JSON parsed token and its type if validated
@@ -31,7 +39,15 @@ export async function register(name, email, password) {
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.detail || "Registration failed")
+        let message = "Registration failed, invalid input."
+
+        if (typeof err.detail === "string") {
+            message = err.detail
+        } else if (Array.isArray(err.detail)) {
+            message = err.detail.map((e) => e.msg).join(", ")
+        }
+
+        throw new Error(message)
     }
 
     return res.json()

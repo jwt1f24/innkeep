@@ -10,7 +10,15 @@ export async function apiFetch(path, options = {}) {
     // throw error if request failed
     if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.detail || `API error: ${res.status}`)
+        let message = `API error: ${res.status}`
+
+        if (typeof err.detail === "string") {
+            message = err.detail
+        } else if (Array.isArray(err.detail)) {
+            message = err.detail.map((e) => e.msg).join(", ")
+        }
+
+        throw new Error(message)
     }
 
     // return JSON parsed token and its type if validated
