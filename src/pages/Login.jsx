@@ -14,14 +14,26 @@ export default function Login() {
     async function handleSubmit(e) {
         e.preventDefault()
         setError("")
-        setLoading(true)
 
+        // input edge case
+        const email_pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!email_pattern.test(email)) {
+            setError("Please enter a valid email address.")
+            return
+        }
+
+        if (password.trim().length < 8) {
+            setError("Password must be at least 8 characters.")
+            return
+        }
+
+        setLoading(true)
         try {
             await login(email, password)
             const redirectTo = location.state?.from?.pathname || "/"
             navigate(redirectTo, { replace: true })
         } catch (err) {
-            setError(err.message)
+            setError("Login failed, invalid input or account doesn't exist.")
         } finally {
             setLoading(false)
         }
@@ -54,7 +66,7 @@ export default function Login() {
                     />
                 </div>
 
-                {error && <p className="text-red-400 text-sm">{error}</p>}
+                <p className="text-red-400 text-sm min-h-[20px]">{error}</p>
 
                 <button
                     type="submit"
@@ -64,9 +76,9 @@ export default function Login() {
                     {loading ? "Logging in..." : "Login"}
                 </button>
 
-                <p className="text-slate-400 text-sm text-center">
+                <p className="text-slate-400 text-m text-center">
                     Don't have an account?{" "}
-                    <Link to="/register" className="text-indigo-400 hover:underline">
+                    <Link to="/register" state={location.state} className="text-indigo-400 hover:underline">
                         Register
                     </Link>
                 </p>

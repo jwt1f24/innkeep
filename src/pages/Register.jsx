@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { register } from '../api/auth'
+import { useAuth } from '../AuthContext'
 
 export default function Register() {
     const [name, setName] = useState("")
@@ -8,19 +9,45 @@ export default function Register() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
-
+    const { login } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
 
     async function handleSubmit(e) {
         e.preventDefault()
         setError("")
-        setLoading(true)
 
+        // input edge case
+        if (name.trim().length < 1) {
+            setError("Please enter your name.")
+            return
+        }
+
+        const name_pattern = /^[a-zA-Z\u00C0-\u024F\s'-]+$/
+        if (!name_pattern.test(name.trim())) {
+            setError("Name can only contain letters.")
+            return
+        }
+
+        const email_pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!email_pattern.test(email)) {
+            setError("Please enter a valid email address.")
+            return
+        }
+
+        if (password.trim().length < 8) {
+            setError("Password must be at least 8 characters.")
+            return
+        }
+
+        setLoading(true)
         try {
             await register(name, email, password)
-            navigate("/login")
+            await login(email, password)
+            const redirectTo = location.state?.from?.pathname || "/"
+            navigate(redirectTo, { replace: true })
         } catch (err) {
-            setError(err.message)
+            setError("Registration failed, invalid input or account already exists.")
         } finally {
             setLoading(false)
         }
@@ -65,7 +92,7 @@ export default function Register() {
                     />
                 </div>
 
-                {error && <p className="text-red-400 text-sm">{error}</p>}
+                <p className="text-red-400 text-sm min-h-[20px]">{error}</p>
 
                 <button
                     type="submit"
@@ -75,9 +102,9 @@ export default function Register() {
                     {loading ? "Creating account..." : "Register"}
                 </button>
 
-                <p className="text-slate-400 text-sm text-center">
+                <p className="text-slate-400 text-m text-center">
                     Already have an account?{" "}
-                    <Link to="/login" className="text-indigo-400 hover:underline">
+                    <Link to="/login" state={location.state} className="text-indigo-400 hover:underline">
                         Login
                     </Link>
                 </p>
