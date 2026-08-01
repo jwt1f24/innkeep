@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
 from datetime import datetime, date
 from decimal import Decimal
 from app.models import Role, BookingStatus, PaymentStatus
+import re
 
 # schema for users, validate incoming & outgoing user data
 class UserCreate(BaseModel):
@@ -9,6 +10,18 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=64)
 
+    # name input validation
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, name: str) -> str:
+        name = name.strip()
+        if not name:
+            raise ValueError("Name cannot be empty")
+        if not re.match(r"^[a-zA-Z\u00C0-\u024F\s'-]+$", name):
+            raise ValueError("Name can only contain letters")
+        return name
+
+    # password input validation
     @field_validator("password")
     @classmethod
     def validate_password(cls, password: str) -> str:
@@ -107,6 +120,14 @@ class BookingCreate(BaseModel):
     room_id: int
     check_in: date
     check_out: date
+
+class BookingQuoteRequest(BaseModel):
+    room_id: int
+    check_in: date
+    check_out: date
+
+class BookingQuoteResponse(BaseModel):
+    total_price: Decimal
 
 class BookingOut(BaseModel):
     id: int
