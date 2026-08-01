@@ -18,7 +18,7 @@ function chunkArray(array, size) {
     return chunks
 }
 
-export default function Carousel() {
+export default function HomeCarousel() {
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,6 +27,10 @@ export default function Carousel() {
     // smooth slide loop transition
     const [position, setPosition] = useState(1);
     const [withTransition, setWithTransition] = useState(true);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    const slides = chunkArray(rooms, 2);
+    const extendedSlides = [slides[slides.length - 1], ...slides, slides[0]];
 
     useEffect(() => {
         async function fetchData() {
@@ -73,15 +77,16 @@ export default function Carousel() {
         return <div className="text-center text-slate-400 py-8">No room types available.</div>;
     }
 
-    const slides = chunkArray(rooms, 2);
-    const extendedSlides = [slides[slides.length - 1], ...slides, slides[0]];
-
     function goPrev() {
+        if (isTransitioning) return;
+        setIsTransitioning(true);
         setWithTransition(true);
         setPosition((prev) => prev - 1);
     }
 
     function goNext() {
+        if (isTransitioning) return;
+        setIsTransitioning(true);
         setWithTransition(true);
         setPosition((prev) => prev + 1);
     }
@@ -96,6 +101,7 @@ export default function Carousel() {
             setWithTransition(false);
             setPosition(slides.length);
         }
+        setIsTransitioning(false);
     }
 
     // real dot index clone offset
@@ -116,7 +122,7 @@ export default function Carousel() {
                 {/* sliding track */}
                 <div className="overflow-hidden flex-1">
                     <div
-                        className={`flex ${withTransition ? 'transition-transform duration-500 ease-in-out' : ''}`}
+                        className={`flex ${withTransition ? 'transition-transform duration-400 ease-in-out' : ''}`}
                         style={{ transform: `translateX(-${position * 100}%)` }}
                         onTransitionEnd={handleTransitionEnd}
                     >
@@ -178,11 +184,13 @@ export default function Carousel() {
                 </button>
             </div>
 
+            {/* dot indicators */}
             <div className="flex justify-center items-center gap-2 mt-6">
                 {slides.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => {
+                            if (isTransitioning) return;
                             setWithTransition(true);
                             setPosition(index + 1);
                         }}
