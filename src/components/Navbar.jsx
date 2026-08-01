@@ -1,9 +1,10 @@
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../AuthContext"
 
 export default function Navbar() {
     const { isLoggedIn, logout } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
 
     // logout handling
     function handleLogout() {
@@ -44,6 +45,7 @@ export default function Navbar() {
             ) : (
                 <Link
                     to="/login"
+                    state={{ from: location }}
                     className="inline-flex items-center bg-indigo-600 text-white border-0 py-1 px-3 hover:bg-indigo-500 rounded text-base mt-4 md:mt-0"
                 >
                 Login
