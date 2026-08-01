@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import date
 from app.dependencies import require_admin
-from app.models import User, Room, RoomType, Booking
+from app.models import User, Room, RoomType, Booking, BookingStatus
 from app.schemas import RoomCreate, RoomUpdate, RoomOut
 from app.database import get_db
 
@@ -33,6 +34,26 @@ def create_room(room: RoomCreate, admin: User = Depends(require_admin), db: Sess
 def get_all_rooms(db: Session = Depends(get_db)):
     fetch_rooms = db.query(Room).all()
     return fetch_rooms
+
+# fetch available rooms only
+@router.get("/available", response_model=list[RoomOut])
+def get_available_rooms(room_type_id: int, check_in: date, check_out: date, db: Session = Depends(get_db)):
+    if check_out <= check_in:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
+
+    all_rooms = db.query(Room).filter(Room.room_type_id == room_type_id).all()
+    available = []
+    for room in all_rooms:
+        conflict = db.query(Booking).filter(
+            Booking.room_id == room.id,
+            Booking.status != BookingStatus.CANCELLED,
+            Booking.check_in < check_out,
+            Booking.check_out > check_in
+        ).first()
+        if conflict is None:
+            available.append(room)
+
+    return available
 
 # fetch room by id
 @router.get("/{room_id}", response_model=RoomOut)

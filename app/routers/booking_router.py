@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from app.dependencies import get_current_user
 from app.models import User, Room, RoomType, Booking, BookingStatus, Role, PricingRule, Payment, PaymentStatus
-from app.schemas import BookingCreate, BookingOut
+from app.schemas import BookingCreate, BookingQuoteRequest, BookingQuoteResponse, BookingOut
 from app.database import get_db
 
 router = APIRouter(prefix="/bookings", tags=["Bookings"])
@@ -53,6 +53,36 @@ def create_booking(booking: BookingCreate, current_user: User = Depends(get_curr
     db.commit()
     db.refresh(new_booking)
     return new_booking
+
+# preview payment price without finalizing booking creation
+@router.post("/quote", response_model=BookingQuoteResponse)
+def get_booking_quote(quote: BookingQuoteRequest, db: Session = Depends(get_db)):
+    room = db.get(Room, quote.room_id)
+    if room is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+
+    if quote.check_out <= quote.check_in:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
+
+    # calculate total price based on each night
+    room_type = db.get(RoomType, room.room_type_id)
+    total_price = 0
+    current_date = quote.check_in
+    while current_date < quote.check_out:
+        holiday_period = db.query(PricingRule).filter(
+            PricingRule.start_date <= current_date,
+            PricingRule.end_date >= current_date,
+        ).first()
+
+        if holiday_period is not None:
+            total_price += room_type.holiday_price
+        elif current_date.weekday() in (5, 6):
+            total_price += room_type.weekend_price
+        else:
+            total_price += room_type.weekday_price
+        current_date += timedelta(days=1)
+
+    return BookingQuoteResponse(total_price=total_price)
 
 # fetch all existing bookings
 @router.get("/", response_model=list[BookingOut])
