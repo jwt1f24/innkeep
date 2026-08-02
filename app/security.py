@@ -22,7 +22,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(sub: str) -> str:
     payload = {
         "sub": sub,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=30)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.token_timer)
     }
     token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
     return token
