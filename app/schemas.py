@@ -159,9 +159,6 @@ class PricingRuleOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 # schema for payment
-class PaymentCreate(BaseModel):
-    booking_id: int
-
 class PaymentOut(BaseModel):
     id: int
     booking_id: int

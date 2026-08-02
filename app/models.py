@@ -48,9 +48,9 @@ class Room(Base):
 
 # model for booking
 class BookingStatus(enum.Enum):
-    PENDING = "pending"
     CONFIRMED = "confirmed"
     CANCELLED = "cancelled"
+    COMPLETED = "completed"
 
 class Booking(Base):
     __tablename__ = "bookings"
