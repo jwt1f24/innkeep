@@ -5,17 +5,16 @@ import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
 import Home from './pages/Home'
-import Rooms from './pages/Rooms'
 import Login from './pages/Login'
 import Register from './pages/Register'
-
-function Bookings() {
-  return <div className="p-6 text-white">Your bookings (protected)</div>
-}
+import Rooms from './pages/Rooms'
+import BookRoom from './pages/BookRoom'
+import Payment from './pages/Payment'
+import Bookings from './pages/Bookings'
 
 function AppContent() {
     const location = useLocation()
-    const hideFooter = ["/login", "/register"].includes(location.pathname)
+    const hideFooter = ["/login", "/register", "/confirm-booking"].includes(location.pathname)
 
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col">
@@ -26,6 +25,8 @@ function AppContent() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/rooms" element={<Rooms/>} />
+                    <Route path="/book-room" element={<BookRoom/>} />
+                    <Route path="/confirm-booking" element={<ProtectedRoute><Payment/></ProtectedRoute>} />
                     <Route path="/bookings" element={<ProtectedRoute><Bookings/></ProtectedRoute>} />
                 </Routes>
             </div>

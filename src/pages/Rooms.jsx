@@ -107,7 +107,7 @@ export default function Rooms() {
                             </div>
 
                             <button
-                                onClick={() => navigate(`/rooms/${room.id}`)}
+                                onClick={() => navigate(`/book-room?room_type_id=${room.id}`)}
                                 className="mt-auto bg-indigo-600 hover:bg-indigo-500 text-white text-xl py-3 px-6 font-medium transition-colors"
                             >
                                 Book Now

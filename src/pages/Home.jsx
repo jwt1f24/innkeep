@@ -45,7 +45,7 @@ export default function Home() {
                         <input
                             type="date"
                             value={checkOut}
-                            min={today}
+                            min={tomorrow}
                             onChange={(e) => setCheckOut(e.target.value)}
                             className="w-full p-2 rounded bg-slate-700 text-white"
                         />
