@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BedDouble, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
+
 function describeBeds(room) {
     const parts = []
     if (room.king_beds > 0) parts.push(`${room.king_beds} King`)
@@ -136,7 +138,7 @@ export default function HomeCarousel() {
                                         <div
                                             className="absolute inset-0 bg-cover bg-center"
                                             style={{
-                                                backgroundImage: `url(${room.image_url || "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"})`,
+                                                backgroundImage: `url(${room.image_url || FALLBACK_IMAGE})`,
                                             }}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
