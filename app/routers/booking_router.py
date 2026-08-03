@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta, date
+from decimal import Decimal
 from app.dependencies import get_current_user
 from app.models import User, Room, RoomType, Booking, BookingStatus, Role, PricingRule, Payment, PaymentStatus
 from app.schemas import BookingCreate, BookingQuoteRequest, BookingQuoteResponse, BookingOut
@@ -168,12 +169,13 @@ def early_checkout(booking_id: int, current_user: User = Depends(get_current_use
 
     room = db.get(Room, booking.room_id)
     room_type = db.get(RoomType, room.room_type_id)
+    new_check_out = max(today, booking.check_in + timedelta(days=1))
 
-    unstayed_amount = calculate_total_price(db, room_type, today, booking.check_out)
-    penalty = unstayed_amount * 0.10
+    unstayed_amount = calculate_total_price(db, room_type, new_check_out, booking.check_out)
+    penalty = unstayed_amount * Decimal("0.10")
     new_total_price = booking.total_price - unstayed_amount + penalty
 
-    booking.check_out = today
+    booking.check_out = new_check_out
     booking.total_price = new_total_price
     booking.status = BookingStatus.COMPLETED
 

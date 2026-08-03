@@ -19,6 +19,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[Role] = mapped_column(Enum(Role), nullable=False)
     date_created: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
 # model for hotel rooms
 class RoomType(Base):

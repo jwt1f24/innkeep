@@ -13,6 +13,7 @@ class Settings:
         self.algorithm = "HS256"
         self.database_url = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/innkeep")
         self.token_timer = int(os.getenv("TOKEN_TIMER", 60 * 24 * 14))
+        self.stripe_secret_key = os.getenv("STRIPE_SECRET_KEY", "")
 
 # create class instance for direct use from other files
 settings = Settings()
