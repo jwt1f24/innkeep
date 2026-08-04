@@ -23,12 +23,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found", headers={"WWW-Authenticate": "Bearer"})
     return user
 
-# verify higher user role permissions
-def require_staff_or_admin(user: User = Depends(get_current_user)):
-    if user.role == Role.GUEST:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
-    return user
-
 # verify admin role permissions
 def require_admin(user: User = Depends(get_current_user)):
     if user.role != Role.ADMIN:

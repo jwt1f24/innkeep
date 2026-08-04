@@ -10,7 +10,7 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 # fetch all existing payments
 @router.get("/", response_model=list[PaymentOut])
 def get_all_payments(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if current_user.role in (Role.ADMIN, Role.STAFF):
+    if current_user.role == Role.ADMIN:
         fetch_payments = db.query(Payment).all()
     else:
         fetch_payments = db.query(Payment).join(Booking, Payment.booking_id == Booking.id).filter(Booking.user_id == current_user.id).all()
@@ -24,6 +24,6 @@ def get_payment_id(payment_id: int, current_user: User = Depends(get_current_use
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
 
     booking = db.get(Booking, payment.booking_id)
-    if booking.user_id != current_user.id and current_user.role not in (Role.ADMIN, Role.STAFF):
+    if booking.user_id != current_user.id and current_user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
     return payment

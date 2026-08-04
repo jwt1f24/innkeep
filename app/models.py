@@ -8,7 +8,6 @@ import enum
 # model for users
 class Role(enum.Enum):
     ADMIN = "admin"
-    STAFF = "staff"
     GUEST = "guest"
 
 class User(Base):

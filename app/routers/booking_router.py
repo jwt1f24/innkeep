@@ -97,7 +97,7 @@ def create_booking(booking: BookingCreate, current_user: User = Depends(get_curr
 # fetch all existing bookings
 @router.get("/", response_model=list[BookingOut])
 def get_all_bookings(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if current_user.role in (Role.ADMIN, Role.STAFF):
+    if current_user.role == Role.ADMIN:
         fetch_bookings = db.query(Booking).all()
     else:
         fetch_bookings = db.query(Booking).filter(Booking.user_id == current_user.id).all()
@@ -113,7 +113,7 @@ def get_booking_id(booking_id: int, current_user: User = Depends(get_current_use
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
-    if booking.user_id != current_user.id and current_user.role not in (Role.ADMIN, Role.STAFF):
+    if booking.user_id != current_user.id and current_user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
     auto_complete(booking, db)
     return booking
@@ -126,7 +126,7 @@ def cancel_booking(booking_id: int, current_user: User = Depends(get_current_use
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
     # user auth edge case
-    if booking.user_id != current_user.id and current_user.role not in (Role.ADMIN, Role.STAFF):
+    if booking.user_id != current_user.id and current_user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
 
     auto_complete(booking, db)
@@ -155,7 +155,7 @@ def early_checkout(booking_id: int, current_user: User = Depends(get_current_use
     if booking is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
-    if booking.user_id != current_user.id and current_user.role not in (Role.ADMIN, Role.STAFF):
+    if booking.user_id != current_user.id and current_user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not authorized")
 
     auto_complete(booking, db)
