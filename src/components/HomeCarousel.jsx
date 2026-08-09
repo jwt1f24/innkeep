@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, BedDouble, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { ChevronLeft, ChevronRight, BedDouble, Users } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import Button from './Button'
 
 const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
 
@@ -95,11 +96,11 @@ export default function HomeCarousel() {
 
     function handleTransitionEnd() {
         if (position === extendedSlides.length - 1) {
-            // landed on the cloned first slide -> silently snap to the real first slide
+            // cloned first slide to real first slide
             setWithTransition(false);
             setPosition(1);
         } else if (position === 0) {
-            // landed on the cloned last slide -> silently snap to the real last slide
+            // cloned last slide to real last slide
             setWithTransition(false);
             setPosition(slides.length);
         }
@@ -116,7 +117,7 @@ export default function HomeCarousel() {
                 <button
                     onClick={goPrev}
                     aria-label="Previous slide"
-                    className="text-white hover:text-indigo-400 transition-colors flex-none cursor-pointer"
+                    className="text-neutral-600 hover:text-black transition-colors flex-none cursor-pointer"
                 >
                     <ChevronLeft size={40} strokeWidth={3} />
                 </button>
@@ -141,19 +142,19 @@ export default function HomeCarousel() {
                                                 backgroundImage: `url(${room.image_url || FALLBACK_IMAGE})`,
                                             }}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                                         <div className="relative z-10 h-full flex flex-col justify-end p-5">
                                             <div className="flex items-end justify-between gap-4">
                                                 {/* room type name & tags */}
                                                 <div>
-                                                    <h3 className="text-4xl font-bold text-white mb-2">{room.name}</h3>
+                                                    <h3 className="text-4xl font-semibold text-white mb-2">{room.name}</h3>
                                                     <div className="flex gap-6 flex-wrap">
-                                                        <span className="flex items-center gap-1.5 text-slate-200 text-m font-medium">
+                                                        <span className="flex items-center gap-1.5 text-slate-200 text-base font-medium">
                                                             <BedDouble className="w-5 h-5" />
                                                             {describeBeds(room)}
                                                         </span>
-                                                        <span className="flex items-center gap-1.5 text-slate-200 text-m font-medium">
+                                                        <span className="flex items-center gap-1.5 text-slate-200 text-base font-medium">
                                                             <Users className="w-5 h-5" />
                                                             {room.accommodates}
                                                         </span>
@@ -161,12 +162,9 @@ export default function HomeCarousel() {
                                                 </div>
 
                                                 {/* booking button */}
-                                                <button
-                                                    onClick={() => navigate(`/rooms?room_type_id=${room.id}`)}
-                                                    className="flex-none bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-12 py-4 rounded text-lg transition-colors"
-                                                >
+                                                <Button onClick={() => navigate("/book-room")} className="px-12 py-4 flex-none">
                                                     BOOK NOW
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     </div>
@@ -180,7 +178,7 @@ export default function HomeCarousel() {
                 <button
                     onClick={goNext}
                     aria-label="Next slide"
-                    className="text-white hover:text-indigo-400 transition-colors flex-none cursor-pointer"
+                    className="text-neutral-600 hover:text-black transition-colors flex-none cursor-pointer"
                 >
                     <ChevronRight size={40} strokeWidth={3} />
                 </button>
@@ -198,7 +196,7 @@ export default function HomeCarousel() {
                         }}
                         aria-label={`Go to slide ${index + 1}`}
                         className={`w-2.5 h-2.5 rounded-full ${
-                            realIndex === index ? 'bg-indigo-500' : 'bg-slate-700'
+                            realIndex === index ? 'bg-amber-500' : 'bg-amber-700'
                         }`}
                     />
                 ))}

@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
 
-export default function RoomCarousel({ images }) {
+export default function RoomCarousel({ images = [] }) {
     const [index, setIndex] = useState(0)
     const list = images.length > 0 ? images : [{ image_url: FALLBACK_IMAGE }]
 
@@ -74,7 +74,7 @@ export default function RoomCarousel({ images }) {
                 <button
                     onClick={goPrev}
                     aria-label="Previous image"
-                    className="absolute left-2 top-1/2 -translate-y-1/2 text-white"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 text-white cursor-pointer"
                 >
                     <ChevronLeft size={36} strokeWidth={3}/>
                 </button>
@@ -84,7 +84,7 @@ export default function RoomCarousel({ images }) {
                 <button
                     onClick={goNext}
                     aria-label="Next image"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white cursor-pointer"
                 >
                     <ChevronRight size={36} strokeWidth={3}/>
                 </button>

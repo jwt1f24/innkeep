@@ -12,52 +12,65 @@ function GithubIcon({ className }) {
 
 export default function Footer() {
     return (
-        <footer className="bg-slate-900 border-t border-slate-700 mt-16">
-            <div className="max-w-3xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <footer className="bg-neutral-800">
+            <div className="max-w-5xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
                 {/* brand */}
                 <div>
-                    <h3 className="text-4xl font-bold text-indigo-400 mb-3">Innkeep</h3>
+                    <p className="text-3xl font-semibold text-white">Innkeep</p>
                 </div>
 
                 {/* navigation */}
                 <div>
-                    <h4 className="text-white font-semibold mb-3">NAVIGATION</h4>
-                    <ul className="flex flex-col gap-2 text-m">
+                    <p className="text-white text-sm font-medium mb-4">NAVIGATION</p>
+                    <ul className="flex flex-col gap-3 text-sm text-neutral-200">
                         <li>
-                            <Link to="/" className="text-slate-400 hover:text-white">Home</Link>
+                            <Link to="/" className="hover:text-white">Home</Link>
                         </li>
                         <li>
-                            <Link to="/rooms" className="text-slate-400 hover:text-white">Rooms</Link>
+                            <Link to="/rooms" className="hover:text-white">Rooms</Link>
                         </li>
                         <li>
-                            <Link to="/contact" className="text-slate-400 hover:text-white">Contact Us</Link>
+                            <Link to="/amenities" className="hover:text-white">Amenities</Link>
+                        </li>
+                        <li>
+                            <Link to="/events" className="hover:text-white">Events</Link>
                         </li>
                     </ul>
                 </div>
 
                 {/* contact */}
                 <div>
-                    <h4 className="text-white font-semibold mb-3">CONTACT</h4>
-                    <ul className="flex flex-col gap-2 text-sm text-slate-400">                                             
+                    <h4 className="text-white text-sm font-medium mb-4">CONTACT</h4>
+                    <ul className="flex flex-col gap-3 text-sm text-neutral-200">                                             
                         <li className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 flex-none" />
-                            mail@innkeep.com
+                            <a 
+                                href="mailto:mail@innkeep.com" 
+                                className="inline-flex items-center gap-2.5 hover:text-white"
+                            >
+                                <Mail className="w-4 h-4 flex-none"/>
+                                mail@innkeep.com   
+                            </a>
                         </li>
                         <li className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 flex-none" />
-                            +60 12-345 6789
+                            <a 
+                                href="tel:+60123456789" 
+                                className="inline-flex items-center gap-2.5 hover:text-white"
+                            >
+                                <Phone className="w-4 h-4 flex-none"/>
+                                +60 12-345 6789 
+                            </a>
                         </li>
                         <li className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 flex-none" />
+                            <MapPin className="w-4 h-4 flex-none"/>
                             67, Skibidi Street, Ohio Valley
                         </li>
                         <li className="flex items-center gap-2">
-                            <GithubIcon className="w-4 h-4 flex-none" />
+                            <GithubIcon className="w-4 h-4 flex-none"/>
                             <a 
-                            href="https://github.com/jwt1f24/innkeep" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:underline"
+                                href="https://github.com/jwt1f24/innkeep" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:underline hover:text-white"
                             >
                             github.com/jwt1f24/innkeep
                             </a>
@@ -66,7 +79,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div className="border-t border-slate-800 py-4 text-center text-slate-400 text-s">
+            <div className="border-t border-neutral-600 py-6 text-center text-neutral-400 text-s">
                 © {new Date().getFullYear()} Innkeep, All rights reserved.
             </div>
         </footer>
