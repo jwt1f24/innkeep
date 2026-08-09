@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from datetime import date
 from app.dependencies import get_current_user
 from app.models import User, Room, RoomType
-from app.schemas import BookingQuoteRequest
+from app.schemas import BookingQuoteRequest, MultiQuoteRequest
 from app.database import get_db
 from app.config import settings
-from app.routers.booking_router import calculate_total_price
+from app.routers.booking_router import calculate_total_price, get_multi_quote
 import stripe
 
 stripe.api_key = settings.stripe_secret_key
@@ -79,3 +79,19 @@ def delete_payment_method(payment_method_id: str, current_user: User = Depends(g
 
     stripe.PaymentMethod.detach(payment_method_id)
     return {"detail": "Payment method removed"}
+
+@router.post("/create-payment-intent-multi")
+def create_payment_intent_multi(request: MultiQuoteRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    quote = get_multi_quote(request, db)
+    grand_total = quote.grand_total
+    amount_in_cents = int(grand_total * 100)
+    customer_id = get_or_create_customer(current_user, db)
+
+    intent = stripe.PaymentIntent.create(
+        amount=amount_in_cents,
+        currency="myr",
+        customer=customer_id,
+        setup_future_usage="off_session",
+        metadata={"user_id": str(current_user.id)},
+    )
+    return {"client_secret": intent.client_secret, "total_price": grand_total}

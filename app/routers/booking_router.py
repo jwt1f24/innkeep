@@ -4,10 +4,13 @@ from datetime import timedelta, date
 from decimal import Decimal
 from app.dependencies import get_current_user
 from app.models import User, Room, RoomType, Booking, BookingStatus, Role, PricingRule, Payment, PaymentStatus
-from app.schemas import BookingCreate, BookingQuoteRequest, BookingQuoteResponse, BookingOut
+from app.schemas import BookingCreate, BookingQuoteRequest, BookingQuoteResponse, BookingOut, MultiBookingRequest, MultiQuoteRequest, QuoteItemResult, MultiQuoteResponse
 from app.database import get_db
+from app.config import settings
+import stripe
 
 router = APIRouter(prefix="/bookings", tags=["Bookings"])
+stripe.api_key = settings.stripe_secret_key
 
 # booking price calculation
 def calculate_total_price(db: Session, room_type: RoomType, check_in: date, check_out: date) -> float:
@@ -186,3 +189,103 @@ def early_checkout(booking_id: int, current_user: User = Depends(get_current_use
     db.commit()
     db.refresh(booking)
     return booking
+
+# helper for refund call
+def refund_and_reject(payment_intent_id: str, status_code: int, detail: str):
+    stripe.Refund.create(payment_intent=payment_intent_id)
+    raise HTTPException(status_code=status_code, detail=f"{detail} Your payment has been refunded.")
+
+# fetch available rooms when user is booking
+@router.post("/multi", response_model=list[BookingOut])
+def create_multi_booking(request: MultiBookingRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if request.check_out <= request.check_in:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
+
+    if request.check_in < date.today():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Check in date cannot be in the past")
+
+    assignments = []
+    for item in request.items:
+        room_type = db.get(RoomType, item.room_type_id)
+        if room_type is None:
+            refund_and_reject(request.payment_intent_id, status.HTTP_404_NOT_FOUND, f"Room type {item.room_type_id} not found.")
+
+        all_rooms = db.query(Room).filter(Room.room_type_id == item.room_type_id).all()
+        available_rooms = []
+        for room in all_rooms:
+            conflict = db.query(Booking).filter(
+                Booking.room_id == room.id,
+                Booking.status != BookingStatus.CANCELLED,
+                Booking.check_in < request.check_out,
+                Booking.check_out > request.check_in
+            ).first()
+            if conflict is None:
+                available_rooms.append(room)
+
+        if len(available_rooms) < item.quantity:
+            refund_and_reject(
+                request.payment_intent_id,
+                status.HTTP_409_CONFLICT,
+                f"Only {len(available_rooms)} room(s) available for {room_type.name}."
+            )
+
+        for room in available_rooms[:item.quantity]:
+            assignments.append((room, room_type))
+
+    # create all bookings & payments once validated
+    created_bookings = []
+    for room, room_type in assignments:
+        total_price = calculate_total_price(db, room_type, request.check_in, request.check_out)
+
+        new_booking = Booking(
+            user_id=current_user.id,
+            room_id=room.id,
+            check_in=request.check_in,
+            check_out=request.check_out,
+            status=BookingStatus.CONFIRMED,
+            total_price=total_price
+        )
+        db.add(new_booking)
+        db.flush()
+
+        new_payment = Payment(
+            booking_id=new_booking.id,
+            amount=total_price,
+            status=PaymentStatus.SUCCESS
+        )
+        db.add(new_payment)
+        created_bookings.append(new_booking)
+
+    db.commit()
+    for b in created_bookings:
+        db.refresh(b)
+    return created_bookings
+
+# preview total price in cart
+@router.post("/quote-multi", response_model=MultiQuoteResponse)
+def get_multi_quote(request: MultiQuoteRequest, db: Session = Depends(get_db)):
+    if request.check_out <= request.check_in:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be after start date")
+
+    if request.check_in < date.today():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Check in date cannot be in the past")
+
+    results = []
+    grand_total = 0
+
+    for item in request.items:
+        room_type = db.get(RoomType, item.room_type_id)
+        if room_type is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Room type {item.room_type_id} not found")
+
+        price_per_room = calculate_total_price(db, room_type, request.check_in, request.check_out)
+        subtotal = price_per_room * item.quantity
+        grand_total += subtotal
+
+        results.append(QuoteItemResult(
+            room_type_id=item.room_type_id,
+            quantity=item.quantity,
+            price_per_room=price_per_room,
+            subtotal=subtotal
+        ))
+    return MultiQuoteResponse(items=results, grand_total=grand_total)

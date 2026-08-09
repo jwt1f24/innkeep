@@ -166,3 +166,29 @@ class PaymentOut(BaseModel):
     status: PaymentStatus
     stripe_payment_id: str | None = None
     model_config = ConfigDict(from_attributes=True)
+
+# schema for booking cart
+class CartItem(BaseModel):
+    room_type_id: int
+    quantity: int
+
+class MultiBookingRequest(BaseModel):
+    items: list[CartItem]
+    check_in: date
+    check_out: date
+    payment_intent_id: str
+
+class MultiQuoteRequest(BaseModel):
+    items: list[CartItem]
+    check_in: date
+    check_out: date
+
+class QuoteItemResult(BaseModel):
+    room_type_id: int
+    quantity: int
+    price_per_room: Decimal
+    subtotal: Decimal
+
+class MultiQuoteResponse(BaseModel):
+    items: list[QuoteItemResult]
+    grand_total: Decimal
