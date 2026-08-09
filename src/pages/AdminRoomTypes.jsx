@@ -148,9 +148,9 @@ export default function AdminRoomTypes() {
                                 <td className="py-3 px-4">{rt.single_beds}</td>
                                 <td className="py-3 px-4">{rt.king_beds}</td>
                                 <td className="py-3 px-4">{rt.queen_beds}</td>
-                                <td className="py-3 px-4">RM{Number(rt.weekday_price).toFIxed(2)}</td>
-                                <td className="py-3 px-4">RM{Number(rt.weekend_price).toFIxed(2)}</td>
-                                <td className="py-3 px-4">RM{Number(rt.holiday_price).toFIxed(2)}</td>
+                                <td className="py-3 px-4">RM{Number(rt.weekday_price).toFixed(2)}</td>
+                                <td className="py-3 px-4">RM{Number(rt.weekend_price).toFixed(2)}</td>
+                                <td className="py-3 px-4">RM{Number(rt.holiday_price).toFixed(2)}</td>
                                 <td className="py-3 px-4">{rt.accommodates}</td>
                                 <td className="py-3 px-4">
                                     <div className="flex gap-2">
