@@ -11,6 +11,10 @@ router = APIRouter(prefix="/room-types", tags=["Room Types"])
 @router.post("/", response_model=RoomTypeOut)
 def create_room_type(room_type: RoomTypeCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     # input edge case
+    existing_count = db.query(RoomType).count()
+    if existing_count >= 10:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Maximum of 10 room types allowed")
+
     if not room_type.name.strip() or not room_type.description.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name & description cannot be empty")
 
