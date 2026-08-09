@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../AuthContext'
+import { isValidEmail } from '../validators'
+import { getRedirectPath } from '../redirect'
+import Button from '../components/Button'
+import Input from '../components/Input'
 
 export default function Login() {
     const [email, setEmail] = useState("")
@@ -16,8 +20,7 @@ export default function Login() {
         setError("")
 
         // input edge case
-        const email_pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!email_pattern.test(email)) {
+        if (!isValidEmail(email)) {
             setError("Please enter a valid email address.")
             return
         }
@@ -29,9 +32,13 @@ export default function Login() {
 
         setLoading(true)
         try {
-            await login(email, password)
-            const redirectTo = location.state?.from?.pathname || "/"
-            navigate(redirectTo, { replace: true })
+            const profile = await login(email, password)
+
+            if (profile.role === "admin") {
+                navigate("/admin-dashboard", { replace: true })
+            } else {
+                navigate(getRedirectPath(location.state), { replace: true }) 
+            }
         } catch (err) {
             setError("Login failed, invalid input or account doesn't exist.")
         } finally {
@@ -40,45 +47,40 @@ export default function Login() {
     }
 
     return (
-        <div className="max-w-md mx-auto p-6 mt-12">
-            <h1 className="text-3xl font-bold text-white mb-6 text-center">Login</h1>
+        <div className="max-w-md mx-auto py-12">
+            <h1 className="text-4xl font-semibold text-white mb-8 text-center">Login</h1>
 
-            <form onSubmit={handleSubmit} className="bg-slate-800 rounded-xl p-6 flex flex-col gap-4">
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1">Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full p-2 rounded bg-slate-700 text-white"
-                    />
-                </div>
+            <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 flex flex-col gap-4">
+                <Input
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="rounded"
+                    required
+                />
+                <Input
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="rounded"
+                    required
+                />
 
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full p-2 rounded bg-slate-700 text-white"
-                    />
-                </div>
+                <p className="text-red-500 text-base text-center min-h-[20px]">{error}</p>
 
-                <p className="text-red-400 text-sm min-h-[20px]">{error}</p>
-
-                <button
+                <Button
                     type="submit"
                     disabled={loading}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded font-medium disabled:opacity-50"
+                    className="py-2 rounded disabled:opacity-50"
                 >
                     {loading ? "Logging in..." : "Login"}
-                </button>
+                </Button>
 
-                <p className="text-slate-400 text-m text-center">
+                <p className="text-black text-base text-center">
                     Don't have an account?{" "}
-                    <Link to="/register" state={location.state} className="text-indigo-400 hover:underline">
+                    <Link to="/register" state={location.state} className="text-blue-600 hover:underline">
                         Register
                     </Link>
                 </p>

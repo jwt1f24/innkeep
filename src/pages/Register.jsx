@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { register } from '../api/auth'
 import { useAuth } from '../AuthContext'
+import { isValidEmail, isValidName } from '../validators'
+import { getRedirectPath } from '../redirect'
+import Button from '../components/Button'
+import Input from '../components/Input'
 
 export default function Register() {
     const [name, setName] = useState("")
@@ -23,14 +27,12 @@ export default function Register() {
             return
         }
 
-        const name_pattern = /^[a-zA-Z\u00C0-\u024F\s'-]+$/
-        if (!name_pattern.test(name.trim())) {
+        if (!isValidName(name)) {
             setError("Name can only contain letters.")
             return
         }
 
-        const email_pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!email_pattern.test(email)) {
+        if (!isValidEmail(email)) {
             setError("Please enter a valid email address.")
             return
         }
@@ -44,8 +46,7 @@ export default function Register() {
         try {
             await register(name, email, password)
             await login(email, password)
-            const redirectTo = location.state?.from?.pathname || "/"
-            navigate(redirectTo, { replace: true })
+            navigate(getRedirectPath(location.state), { replace: true })
         } catch (err) {
             setError("Registration failed, invalid input or account already exists.")
         } finally {
@@ -54,57 +55,45 @@ export default function Register() {
     }
 
     return (
-        <div className="max-w-md mx-auto p-6 mt-12">
-            <h1 className="text-3xl font-bold text-white mb-6 text-center">Register</h1>
+        <div className="max-w-md mx-auto py-12">
+            <h1 className="text-4xl font-semibold text-white mb-8 text-center">Register</h1>
 
-            <form onSubmit={handleSubmit} className="bg-slate-800 rounded-xl p-6 flex flex-col gap-4">
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1">Name</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className="w-full p-2 rounded bg-slate-700 text-white"
-                    />
-                </div>
+            <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 flex flex-col gap-4">
+                <Input
+                    label="Name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="rounded"
+                    required
+                />
+                <Input
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="rounded"
+                    required
+                />
+                <Input
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength={8}
+                    className="rounded"
+                    required
+                />
 
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1">Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full p-2 rounded bg-slate-700 text-white"
-                    />
-                </div>
+                <p className="text-red-500 text-base text-center min-h-[20px]">{error}</p>
 
-                <div>
-                    <label className="block text-slate-400 text-sm mb-1">Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        minLength={8}
-                        className="w-full p-2 rounded bg-slate-700 text-white"
-                    />
-                </div>
-
-                <p className="text-red-400 text-sm min-h-[20px]">{error}</p>
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded font-medium disabled:opacity-50"
-                >
+                <Button type="submit" disabled={loading} className="py-2 rounded disabled:opacity-50">
                     {loading ? "Creating account..." : "Register"}
-                </button>
+                </Button>
 
-                <p className="text-slate-400 text-m text-center">
+                <p className="text-black text-base text-center">
                     Already have an account?{" "}
-                    <Link to="/login" state={location.state} className="text-indigo-400 hover:underline">
+                    <Link to="/login" state={location.state} className="text-blue-600 hover:underline">
                         Login
                     </Link>
                 </p>
