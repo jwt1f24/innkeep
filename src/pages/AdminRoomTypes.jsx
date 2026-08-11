@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import AdminModal from '../components/AdminModal'
@@ -29,7 +30,7 @@ export default function AdminRoomTypes() {
     async function loadRoomTypes() {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost:8000/room-types/")
+            const res = await fetch(`${BASE_URL}/room-types/`)
             if (!res.ok) throw new Error("Failed to load room types")
             setRoomTypes(await res.json())
         } catch (err) {
@@ -63,8 +64,8 @@ export default function AdminRoomTypes() {
         setSubmitting(true)
         setFormError("")
         const url = editingId
-            ? `http://localhost:8000/room-types/${editingId}`
-            : "http://localhost:8000/room-types/"
+            ? `${BASE_URL}/room-types/${editingId}`
+            : `${BASE_URL}/room-types/`
         const method = editingId ? "PUT" : "POST"
         try {
             const res = await fetch(url, {
@@ -91,7 +92,7 @@ export default function AdminRoomTypes() {
     async function confirmDelete() {
         setDeleting(true)
         try {
-            const res = await fetch(`http://localhost:8000/room-types/${deleteTarget}`, {
+            const res = await fetch(`${BASE_URL}/room-types/${deleteTarget}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             })

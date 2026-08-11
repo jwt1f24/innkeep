@@ -1,10 +1,11 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CalendarDays, Search, ShoppingCart, X, Frown, Clock, Users } from 'lucide-react'
 import { useAuth } from '../AuthContext'
 import Button from '../components/Button'
 
-const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
+const FALLBACK_IMAGE = `${BASE_URL}/static/placeholder.jpg`
 
 export default function BookRoom() {
     const [searchParams] = useSearchParams()
@@ -36,11 +37,11 @@ export default function BookRoom() {
         setCart([])
 
         try {
-            const typesRes = await fetch("http://localhost:8000/room-types/")
+            const typesRes = await fetch(`${BASE_URL}/room-types/`)
             if (!typesRes.ok) throw new Error("Failed to load room types")
             const allTypes = await typesRes.json()
 
-            const imagesRes = await fetch("http://localhost:8000/room-images/")
+            const imagesRes = await fetch(`${BASE_URL}/room-images/`)
             const allImages = imagesRes.ok ? await imagesRes.json() : []
 
             const results = await Promise.all(
@@ -50,7 +51,7 @@ export default function BookRoom() {
                         check_in: checkIn,
                         check_out: checkOut,
                     })
-                    const res = await fetch(`http://localhost:8000/rooms/available?${params.toString()}`)
+                    const res = await fetch(`${BASE_URL}/rooms/available?${params.toString()}`)
                     const rooms = res.ok ? await res.json() : []
                     const image = allImages.find((img) => img.room_type_id === rt.id)
                     return { ...rt, availableCount: rooms.length, image_url: image ? image.image_url : FALLBACK_IMAGE }
@@ -93,7 +94,7 @@ export default function BookRoom() {
         async function loadQuote() {
             setQuoteLoading(true)
             try {
-                const res = await fetch("http://localhost:8000/bookings/quote-multi", {
+                const res = await fetch(`${BASE_URL}/bookings/quote-multi`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

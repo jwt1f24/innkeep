@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BedDouble, Users, Frown, Clock, SearchX } from 'lucide-react'
@@ -23,8 +24,8 @@ export default function Rooms() {
         async function loadData() {
             try {
                 const [typesRes, imagesRes] = await Promise.all([
-                    fetch("http://localhost:8000/room-types/"),
-                    fetch("http://localhost:8000/room-images/"),
+                    fetch(`${BASE_URL}/room-types/`),
+                    fetch(`${BASE_URL}/room-images/`),
                 ])
                 if (!typesRes.ok || !imagesRes.ok) throw new Error("Failed to load rooms")
 

@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import AdminModal from '../components/AdminModal'
@@ -33,8 +34,8 @@ export default function AdminRooms() {
         setLoading(true)
         try {
             const [roomsRes, typesRes] = await Promise.all([
-                fetch("http://localhost:8000/rooms/"),
-                fetch("http://localhost:8000/room-types/"),
+                fetch(`${BASE_URL}/rooms/`),
+                fetch(`${BASE_URL}/room-types/`),
             ])
             if (!roomsRes.ok || !typesRes.ok) throw new Error("Failed to load data")
             setRooms(await roomsRes.json())
@@ -68,7 +69,7 @@ export default function AdminRooms() {
         e.preventDefault()
         setSubmitting(true)
         setFormError("")
-        const url = editingId ? `http://localhost:8000/rooms/${editingId}` : "http://localhost:8000/rooms/"
+        const url = editingId ? `${BASE_URL}/rooms/${editingId}` : `${BASE_URL}/rooms/`
         const method = editingId ? "PUT" : "POST"
         const body = editingId
             ? { room_number: Number(form.room_number) }
@@ -98,7 +99,7 @@ export default function AdminRooms() {
     async function confirmDelete() {
         setDeleting(true)
         try {
-            const res = await fetch(`http://localhost:8000/rooms/${deleteTarget}`, {
+            const res = await fetch(`${BASE_URL}/rooms/${deleteTarget}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             })

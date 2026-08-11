@@ -1,7 +1,8 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
+const FALLBACK_IMAGE = `${BASE_URL}/static/placeholder.jpg`
 
 export default function RoomCarousel({ images = [] }) {
     const [index, setIndex] = useState(0)

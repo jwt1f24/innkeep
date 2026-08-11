@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -18,10 +19,10 @@ export default function AdminHome() {
         setLoading(true)
         try {
             const [roomTypesRes, roomsRes, bookingsRes, usersRes] = await Promise.all([
-                fetch("http://localhost:8000/room-types/"),
-                fetch("http://localhost:8000/rooms/"),
-                fetch("http://localhost:8000/bookings/", { headers: { Authorization: `Bearer ${token}` } }),
-                fetch("http://localhost:8000/users/", { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${BASE_URL}/room-types/`),
+                fetch(`${BASE_URL}/rooms/`),
+                fetch(`${BASE_URL}/bookings/`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${BASE_URL}/users/`, { headers: { Authorization: `Bearer ${token}` } }),
             ])
             if (!roomTypesRes.ok || !roomsRes.ok || !bookingsRes.ok || !usersRes.ok) {
                 throw new Error("Failed to load overview data")

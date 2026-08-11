@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import ConfirmModal from '../components/ConfirmModal'
@@ -23,7 +24,7 @@ export default function AdminUsers() {
     async function loadUsers() {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost:8000/users/", {
+            const res = await fetch(`${BASE_URL}/users/`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             if (!res.ok) throw new Error("Failed to load users")
@@ -44,7 +45,7 @@ export default function AdminUsers() {
         if (!roleTarget) return
         setUpdating(true)
         try {
-            const res = await fetch(`http://localhost:8000/users/${roleTarget.user.id}/role?role=${roleTarget.newRole}`, {
+            const res = await fetch(`${BASE_URL}/users/${roleTarget.user.id}/role?role=${roleTarget.newRole}`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}` },
             })

@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import AdminModal from '../components/AdminModal'
@@ -26,7 +27,7 @@ export default function AdminPricing() {
     async function loadRules() {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost:8000/pricing/")
+            const res = await fetch(`${BASE_URL}/pricing/`)
             if (!res.ok) throw new Error("Failed to load pricing rules")
             setRules(await res.json())
         } catch (err) {
@@ -54,7 +55,7 @@ export default function AdminPricing() {
         e.preventDefault()
         setSubmitting(true)
         setFormError("")
-        const url = editingId ? `http://localhost:8000/pricing/${editingId}` : "http://localhost:8000/pricing/"
+        const url = editingId ? `${BASE_URL}/pricing/${editingId}` : `${BASE_URL}/pricing/`
         const method = editingId ? "PUT" : "POST"
         try {
             const res = await fetch(url, {
@@ -81,7 +82,7 @@ export default function AdminPricing() {
     async function confirmDelete() {
         setDeleting(true)
         try {
-            const res = await fetch(`http://localhost:8000/pricing/${deleteTarget}`, {
+            const res = await fetch(`${BASE_URL}/pricing/${deleteTarget}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             })

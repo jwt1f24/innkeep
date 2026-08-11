@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import ConfirmModal from '../components/ConfirmModal'
@@ -31,7 +32,7 @@ export default function AdminBookings() {
     async function loadBookings() {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost:8000/bookings/", {
+            const res = await fetch(`${BASE_URL}/bookings/`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             if (!res.ok) throw new Error("Failed to load bookings")
@@ -48,8 +49,8 @@ export default function AdminBookings() {
         if (!modal) return
         setActionLoading(true)
         const endpoint = modal.type === "cancel"
-            ? `http://localhost:8000/bookings/${modal.booking.id}/cancel`
-            : `http://localhost:8000/bookings/${modal.booking.id}/early-checkout`
+            ? `${BASE_URL}/bookings/${modal.booking.id}/cancel`
+            : `${BASE_URL}/bookings/${modal.booking.id}/early-checkout`
         try {
             const res = await fetch(endpoint, {
                 method: "PATCH",

@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { Calendar, Frown, Clock } from 'lucide-react'
 
@@ -13,7 +14,7 @@ export default function Events() {
     async function loadRules() {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost:8000/pricing/")
+            const res = await fetch(`${BASE_URL}/pricing/`)
             if (!res.ok) throw new Error("Failed to load events")
             const data = await res.json()
             setRules(data.sort((a, b) => new Date(a.start_date) - new Date(b.start_date)))

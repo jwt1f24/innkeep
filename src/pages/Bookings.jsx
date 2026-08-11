@@ -1,10 +1,11 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import { BedDouble, Users, Clock, Frown } from 'lucide-react'
 import ConfirmModal from '../components/ConfirmModal'
 import Button from '../components/Button'
 
-const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
+const FALLBACK_IMAGE = `${BASE_URL}/static/placeholder.jpg`
 
 function statusColor(status) {
     if (status === "confirmed") return "text-green-600"
@@ -33,10 +34,10 @@ export default function MyBookings() {
         setLoading(true)
         try {
             const [bookingsRes, roomsRes, roomTypesRes, imagesRes] = await Promise.all([
-                fetch("http://localhost:8000/bookings/", { headers: { Authorization: `Bearer ${token}` } }),
-                fetch("http://localhost:8000/rooms/"),
-                fetch("http://localhost:8000/room-types/"),
-                fetch("http://localhost:8000/room-images/"),
+                fetch(`${BASE_URL}/bookings/`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${BASE_URL}/rooms/`),
+                fetch(`${BASE_URL}/room-types/`),
+                fetch(`${BASE_URL}/room-images/`),
             ])
             if (!bookingsRes.ok) throw new Error("Failed to load bookings")
 
@@ -69,8 +70,8 @@ export default function MyBookings() {
         setError("")
 
         const endpoint = modal.type === "cancel"
-            ? `http://localhost:8000/bookings/${modal.booking.id}/cancel`
-            : `http://localhost:8000/bookings/${modal.booking.id}/early-checkout`
+            ? `${BASE_URL}/bookings/${modal.booking.id}/cancel`
+            : `${BASE_URL}/bookings/${modal.booking.id}/early-checkout`
 
         try {
             const res = await fetch(endpoint, {

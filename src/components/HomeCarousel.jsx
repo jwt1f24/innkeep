@@ -1,9 +1,10 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, BedDouble, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Button from './Button'
 
-const FALLBACK_IMAGE = "http://localhost:8000/static/placeholder.jpg"
+const FALLBACK_IMAGE = `${BASE_URL}/static/placeholder.jpg`
 
 function describeBeds(room) {
     const parts = []
@@ -39,8 +40,8 @@ export default function HomeCarousel() {
         async function fetchData() {
             try {
                 const [typesRes, imagesRes] = await Promise.all([
-                    fetch('http://localhost:8000/room-types/'),
-                    fetch('http://localhost:8000/room-images/'),
+                    fetch(`${BASE_URL}/room-types/`),
+                    fetch(`${BASE_URL}/room-images/`),
                 ]);
                 if (!typesRes.ok || !imagesRes.ok) throw new Error('Failed to fetch room data');
 

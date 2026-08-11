@@ -1,22 +1,23 @@
+import { BASE_URL } from '../api/client'
 import { useState } from 'react'
 import RoomCarousel from '../components/RoomCarousel'
 
 const gallery1 = [
-    { image_url: "http://localhost:8000/static/am1.jpg" },
-    { image_url: "http://localhost:8000/static/am2.jpg" },
-    { image_url: "http://localhost:8000/static/am3.jpg" },
+    { image_url: `${BASE_URL}/static/am1.jpg` },
+    { image_url: `${BASE_URL}/static/am2.jpg` },
+    { image_url: `${BASE_URL}/static/am3.jpg` },
 ]
 const gallery2 = [
-    { image_url: "http://localhost:8000/static/am4.jpg" },
-    { image_url: "http://localhost:8000/static/am5.jpg" },
-    { image_url: "http://localhost:8000/static/am6.jpg" },
-    { image_url: "http://localhost:8000/static/am7.jpg" },
+    { image_url: `${BASE_URL}/static/am4.jpg` },
+    { image_url: `${BASE_URL}/static/am5.jpg` },
+    { image_url: `${BASE_URL}/static/am6.jpg` },
+    { image_url: `${BASE_URL}/static/am7.jpg` },
 ]
 const gallery3 = [
-    { image_url: "http://localhost:8000/static/am8.jpg" },
-    { image_url: "http://localhost:8000/static/am9.jpg" },
-    { image_url: "http://localhost:8000/static/am10.jpg" },
-    { image_url: "http://localhost:8000/static/am11.jpg" },
+    { image_url: `${BASE_URL}/static/am8.jpg` },
+    { image_url: `${BASE_URL}/static/am9.jpg` },
+    { image_url: `${BASE_URL}/static/am10.jpg` },
+    { image_url: `${BASE_URL}/static/am11.jpg` },
 ]
 
 export default function Amenities() {

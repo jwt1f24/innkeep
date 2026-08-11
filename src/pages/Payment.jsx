@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -43,7 +44,7 @@ function PaymentSection({ items, checkIn, checkOut, clientSecret, onSuccess }) {
 
     async function loadCards() {
         try {
-            const res = await fetch("http://localhost:8000/stripe/payment-methods", {
+            const res = await fetch(`${BASE_URL}/stripe/payment-methods`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             if (res.ok) setCards(await res.json())
@@ -75,7 +76,7 @@ function PaymentSection({ items, checkIn, checkOut, clientSecret, onSuccess }) {
         }
 
         try {
-            const attachRes = await fetch(`http://localhost:8000/stripe/attach-payment-method?payment_method_id=${paymentMethod.id}`, {
+            const attachRes = await fetch(`${BASE_URL}/stripe/attach-payment-method?payment_method_id=${paymentMethod.id}`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
             })
@@ -111,7 +112,7 @@ function PaymentSection({ items, checkIn, checkOut, clientSecret, onSuccess }) {
 
         if (paymentIntent.status === "succeeded") {
             try {
-                const bookingRes = await fetch("http://localhost:8000/bookings/multi", {
+                const bookingRes = await fetch(`${BASE_URL}/bookings/multi`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -218,12 +219,12 @@ export default function Payment() {
                 return
             }
             try {
-                const typesRes = await fetch("http://localhost:8000/room-types/")
+                const typesRes = await fetch(`${BASE_URL}/room-types/`)
                 if (!typesRes.ok) throw new Error("Failed to load room types")
                 const allTypes = await typesRes.json()
                 setRoomTypes(allTypes)
 
-                const intentRes = await fetch("http://localhost:8000/stripe/create-payment-intent-multi", {
+                const intentRes = await fetch(`${BASE_URL}/stripe/create-payment-intent-multi`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

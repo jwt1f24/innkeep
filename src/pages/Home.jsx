@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wifi, Tv, Dumbbell, Utensils, Sparkles, CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
@@ -14,8 +15,8 @@ export default function Home() {
     const [checkOut, setCheckOut] = useState(tomorrow)
     const navigate = useNavigate()
     const amenityImages = [
-        { image_url: "http://localhost:8000/static/home2.jpg" },
-        { image_url: "http://localhost:8000/static/home3.jpg" }
+        { image_url: `${BASE_URL}/static/home2.jpg` },
+        { image_url: `${BASE_URL}/static/home3.jpg` }
     ]
     
     // header section booking function
@@ -32,7 +33,7 @@ export default function Home() {
             <div className="relative text-center -mx-6 pt-56 pb-64 overflow-hidden">
                 <div
                     className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(http://localhost:8000/static/home1.jpg)` }}
+                    style={{ backgroundImage: `url(${BASE_URL}/static/home1.jpg)` }}
                 />
                 <div className="absolute inset-0 bg-black/30" />
 
@@ -134,7 +135,7 @@ export default function Home() {
             <div className="bg-white -mx-6 grid grid-cols-1 md:grid-cols-2 items-center min-h-[36rem]">
                 <div className="flex items-center justify-center p-6">
                     <img
-                        src="http://localhost:8000/static/home4.jpg"
+                        src={`${BASE_URL}/static/home4.jpg`}
                         alt="Booking Calendar"
                         className="w-full max-w-2xl h-120 object-cover"
                     />
@@ -161,7 +162,7 @@ export default function Home() {
             <div className="relative -mx-6 py-24 overflow-hidden min-h-[36rem]">
                 <div
                     className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(http://localhost:8000/static/home5.jpg)` }}
+                    style={{ backgroundImage: `url(${BASE_URL}/static/home5.jpg)` }}
                 />
                 <div className="absolute inset-0 bg-black/40" />
 

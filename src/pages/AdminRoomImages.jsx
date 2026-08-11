@@ -1,3 +1,4 @@
+import { BASE_URL } from '../api/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import AdminModal from '../components/AdminModal'
@@ -33,8 +34,8 @@ export default function AdminRoomImages() {
         setLoading(true)
         try {
             const [imagesRes, typesRes] = await Promise.all([
-                fetch("http://localhost:8000/room-images/"),
-                fetch("http://localhost:8000/room-types/"),
+                fetch(`${BASE_URL}/room-images/`),
+                fetch(`${BASE_URL}/room-types/`),
             ])
             if (!imagesRes.ok || !typesRes.ok) throw new Error("Failed to load data")
             setImages(await imagesRes.json())
@@ -69,8 +70,8 @@ export default function AdminRoomImages() {
         setSubmitting(true)
         setFormError("")
         const url = editingId
-            ? `http://localhost:8000/room-images/${editingId}`
-            : "http://localhost:8000/room-images/"
+            ? `${BASE_URL}/room-images/${editingId}`
+            : `${BASE_URL}/room-images/`
         const method = editingId ? "PUT" : "POST"
         const body = editingId
             ? { image_url: form.image_url }
@@ -100,7 +101,7 @@ export default function AdminRoomImages() {
     async function confirmDelete() {
         setDeleting(true)
         try {
-            const res = await fetch(`http://localhost:8000/room-images/${deleteTarget}`, {
+            const res = await fetch(`${BASE_URL}/room-images/${deleteTarget}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             })
@@ -204,7 +205,7 @@ export default function AdminRoomImages() {
                     <Input
                         label="Image URL"
                         type="text"
-                        placeholder="e.g. http://localhost:8000/static/room1.jpg"
+                        placeholder={`e.g. ${BASE_URL}/static/room1.jpg`}
                         value={form.image_url}
                         onChange={(e) => setForm({ ...form, image_url: e.target.value })}
                         required
