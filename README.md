@@ -162,7 +162,27 @@ npm run dev
 
 ### Docker Setup
 
-> _Coming soon — a `Dockerfile` and `docker-compose.yml` for one-command local setup (backend + PostgreSQL) are in progress._
+Run the backend and a PostgreSQL database together with one command — no local Python or Postgres install required.
+
+```bash
+docker-compose up --build
+```
+
+On first run, apply the database migrations inside the running container:
+
+```bash
+docker-compose exec backend alembic upgrade head
+```
+
+The API will be available at `http://localhost:8000`, with Swagger docs at `http://localhost:8000/docs`.
+
+To stop everything:
+
+```bash
+docker-compose down
+```
+
+> **Note:** the containerized database is separate and isolated from any local PostgreSQL install — it starts empty and persists data in a Docker volume between restarts.
 
 ### Production Deployment
 
