@@ -86,7 +86,7 @@ export default function Navbar() {
                         <Link
                             to="/login"
                             state={{ from: location }}
-                            className="inline-flex items-center py-[2px] px-4 bg-transparent border-2 border-slate-600 text-slate-600 text-base font-semibold hover:bg-slate-600 hover:text-white transition-colors cursor-pointer"
+                            className="inline-flex items-center py-[2px] px-4 bg-transparent border-2 border-slate-600 text-slate-600 text-lg font-semibold hover:bg-slate-600 hover:text-white transition-colors cursor-pointer"
                         >
                             Login
                         </Link>
