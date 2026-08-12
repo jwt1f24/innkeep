@@ -186,20 +186,30 @@ docker-compose down
 
 ### Production Deployment
 
-> _Coming soon — deployment guide for hosting the backend on Railway and the frontend on Vercel._
+**Backend (Railway):**
 
----
+- Connect the GitHub repo in Railway — it auto-detects the `Dockerfile`
+- Add a PostgreSQL database service in the same project
+- Set environment variables (`SECRET_KEY`, `TOKEN_TIMER`, `STRIPE_SECRET_KEY`, and `DATABASE_URL` referencing the Postgres service)
+- Migrations run automatically on every deploy, via the container's startup command
+
+**Frontend (Vercel):**
+
+- Connect GitHub repo in Vercel
+- Set `VITE_API_URL` and `VITE_STRIPE_PUBLISHABLE_KEY` as environment variables (pointing at deployed Railway backend)
+- Add deployed Vercel URL to backend's CORS allow-list in `main.py`
 
 ## 📚 Documentation & API Reference
 
 Once the backend is running, interactive API documentation (Swagger UI) is available at:
 
+**Live App (Vercel):** https://innkeep-omega.vercel.app
+**Live API (Railway):** https://innkeep-production.up.railway.app/docs
+
+Once running locally, interactive API documentation (Swagger UI) is available at:
+
 ```
-http://localhost:8000/docs
+https://localhost:8000/docs
 ```
 
 This includes every endpoint, request/response schemas, and the ability to test requests directly from the browser.
-
-## 🤝 Contributing
-
-This is a personal portfolio project, but feedback and suggestions are welcome. Feel free to open an issue or reach out directly.
