@@ -160,17 +160,17 @@ export default function BookRoom() {
                     {/* left side - room list */}
                     <div className="flex-1 min-h-[48rem] max-h-[64rem] overflow-y-auto pr-2">
                         {!searched ? (
-                            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-400">
+                            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-600">
                                 <Search className="w-12 h-12 mb-4" />
                                 <p className="text-lg">Select your dates to see available rooms.</p>
                             </div>
                         ) : loading ? (
-                            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-400">
+                            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-600">
                                 <Clock className="w-12 h-12 mb-4" />
                                 <p className="text-lg">Checking availability...</p>
                             </div>
                         ) : availableTypes.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-400">
+                            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-600">
                                 <Frown className="w-12 h-12 mb-4" />
                                 <p className="text-lg">No rooms available for these dates.</p>
                             </div>
@@ -227,7 +227,7 @@ export default function BookRoom() {
                             </h2>
 
                             {cart.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center text-center py-10 text-neutral-400">
+                                <div className="flex flex-col items-center justify-center text-center py-10 text-neutral-600">
                                     <ShoppingCart className="w-8 h-8 mb-2" />
                                     <p className="text-sm">No rooms selected</p>
                                 </div>

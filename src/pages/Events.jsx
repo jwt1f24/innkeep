@@ -27,7 +27,7 @@ export default function Events() {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center text-center py-24 text-neutral-400">
+            <div className="flex flex-col items-center justify-center text-center py-24 text-black">
                 <Clock className="w-12 h-12 mb-4" />
                 <p className="text-lg">Loading events...</p>
             </div>

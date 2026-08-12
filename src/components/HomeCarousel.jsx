@@ -78,7 +78,7 @@ export default function HomeCarousel() {
     }
 
     if (rooms.length === 0) {
-        return <div className="text-center text-slate-400 py-8">No room types available.</div>;
+        return <div className="text-center text-black py-8">No room types available.</div>;
     }
 
     function goPrev() {
