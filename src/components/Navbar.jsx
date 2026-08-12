@@ -42,7 +42,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* center section */}
-                <nav className="flex flex-wrap items-center justify-center gap-8 text-lg text-black font-medium">
+                <nav className="flex flex-wrap items-center justify-center gap-4 lg:gap-8 text-base lg:text-lg text-black font-medium">
                     <Link to="/rooms" className="hover:text-neutral-700">Rooms</Link>
                     <Link to="/amenities" className="hover:text-neutral-700">Amenities</Link>
                     <Link to="/events" className="hover:text-neutral-700">Events</Link>
