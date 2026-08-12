@@ -9,7 +9,10 @@ app.mount("/static", StaticFiles(directory="app/images"), name="static")
 # connect middleware to backend for allowed fastapi requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://innkeep-omega.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
