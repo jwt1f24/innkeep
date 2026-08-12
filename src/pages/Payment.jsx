@@ -5,6 +5,7 @@ import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStri
 import { CreditCard } from 'lucide-react'
 import { useAuth } from '../AuthContext'
 import { stripePromise } from '../stripe'
+import { isValidName } from '../validators'
 import Button from '../components/Button'
 import Dropdown from '../components/Dropdown'
 
@@ -60,6 +61,12 @@ function PaymentSection({ items, checkIn, checkOut, clientSecret, onSuccess }) {
     async function handleAddCard(e) {
         e.preventDefault()
         if (!stripe || !elements) return
+
+        if (!isValidName(name)) {
+            setAddError("Name can only contain letters.")
+            return
+        }
+
         setAddingCard(true)
         setAddError("")
 
@@ -157,7 +164,7 @@ function PaymentSection({ items, checkIn, checkOut, clientSecret, onSuccess }) {
                 <form onSubmit={handleAddCard} className="flex flex-col gap-3 bg-neutral-100 border border-neutral-300 text-black text-base p-4 rounded-xl">
                     <div>
                         <label className="block mb-2">Name on card</label>
-                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-2 rounded bg-white border border-neutral-400"/>
+                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required maxLength={50} className="w-full p-2 rounded bg-white border border-neutral-400"/>
                     </div>
                     <div>
                         <label className="block mb-2">Card details</label>
