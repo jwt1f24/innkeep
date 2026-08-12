@@ -24,6 +24,10 @@ The app is backed by a FastAPI backend and PostgreSQL database with business log
 
 Guests can browse rooms, build a multi-room cart, and check out securely. Admins have a dashboard to manage room types, rooms, pricing, bookings, and users, with live revenue analytics.
 
+## 🎥 Video Demo
+
+[![Video Demo](./docs/thumbnail.png)](https://youtu.be/q6JglnECD5o?si=oiTOA8sqR_X_wphl)
+
 ## 🏗️ Architecture Overview
 
 ```mermaid
@@ -203,8 +207,8 @@ docker-compose down
 
 Once the backend is running, interactive API documentation (Swagger UI) is available at:
 
-**Live App (Vercel):** https://innkeep-omega.vercel.app
-**Live API (Railway):** https://innkeep-production.up.railway.app/docs
+- **Live App (Vercel):** https://innkeep-omega.vercel.app
+- **Live API (Railway):** https://innkeep-production.up.railway.app/docs
 
 Once running locally, interactive API documentation (Swagger UI) is available at:
 
