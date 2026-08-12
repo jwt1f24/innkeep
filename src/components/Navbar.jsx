@@ -46,7 +46,7 @@ export default function Navbar() {
                     <Link to="/rooms" className="hover:text-neutral-700">Rooms</Link>
                     <Link to="/amenities" className="hover:text-neutral-700">Amenities</Link>
                     <Link to="/events" className="hover:text-neutral-700">Events</Link>
-                    <Link to="/bookings" className="hover:text-neutral-700">My Bookings</Link>
+                    <Link to="/bookings" className="hover:text-neutral-700">Bookings</Link>
                 </nav>
 
                 {/* right section */}
