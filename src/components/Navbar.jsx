@@ -38,11 +38,11 @@ export default function Navbar() {
             <div className="container mx-auto grid grid-cols-3 items-center px-6 py-4">
                 {/* left section */}
                 <Link to="/" className="flex title-font font-medium items-center">
-                    <span className="text-2xl text-amber-800">InnKeep</span>
+                    <span className="text-xl text-amber-800">InnKeep</span>
                 </Link>
 
                 {/* center section */}
-                <nav className="flex flex-wrap items-center justify-center gap-4 lg:gap-8 text-base lg:text-lg text-black font-medium">
+                <nav className="flex items-center justify-center gap-4 lg:gap-8 text-base lg:text-lg text-black font-medium">
                     <Link to="/rooms" className="hover:text-neutral-700">Rooms</Link>
                     <Link to="/amenities" className="hover:text-neutral-700">Amenities</Link>
                     <Link to="/events" className="hover:text-neutral-700">Events</Link>
@@ -86,7 +86,7 @@ export default function Navbar() {
                         <Link
                             to="/login"
                             state={{ from: location }}
-                            className="inline-flex items-center py-[2px] px-4 bg-transparent border-2 border-slate-600 text-slate-600 text-lg font-semibold hover:bg-slate-600 hover:text-white transition-colors cursor-pointer"
+                            className="inline-flex items-center py-[2px] px-4 bg-transparent border-2 border-slate-600 text-slate-600 text-base font-semibold hover:bg-slate-600 hover:text-white transition-colors cursor-pointer"
                         >
                             Login
                         </Link>
