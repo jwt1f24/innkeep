@@ -86,11 +86,25 @@ export default function BookRoom() {
         setCart((prev) => prev.filter((c) => c.roomTypeId !== roomTypeId))
     }
 
+    function addOneDay(dateString) {
+        const date = new Date(dateString)
+        date.setDate(date.getDate() + 1)
+        return date.toISOString().split("T")[0]
+    }
+
+    useEffect(() => {
+        if (checkOut <= checkIn) {
+            setCheckOut(addOneDay(checkIn))
+        }
+    }, [checkIn])
+
     useEffect(() => {
         if (cart.length === 0) {
             setQuoteTotal(null)
             return
         }
+        if (checkOut <= checkIn) return
+
         async function loadQuote() {
             setQuoteLoading(true)
             try {
@@ -142,7 +156,7 @@ export default function BookRoom() {
                     </div>
                     <div className="flex-1 w-full">
                         <label className="block text-white text-base font-medium mb-1">Check-out</label>
-                        <input type="date" value={checkOut} min={tomorrow} onChange={(e) => setCheckOut(e.target.value)} className="w-full p-2 bg-white text-black text-lg"/>
+                        <input type="date" value={checkOut} min={addOneDay(checkIn)} onChange={(e) => setCheckOut(e.target.value)} className="w-full p-2 bg-white text-black text-lg"/>
                     </div>
                     <Button type="submit" className="px-4 py-2 w-full md:w-auto">
                         Check Availability
@@ -273,10 +287,9 @@ export default function BookRoom() {
                             )}
                         </div>
                     </div>
-
-                    {/* error message */}
-                    <p className="text-red-500 text-base min-h-[20px] text-center mt-4">{error}</p>
                 </div>
+                {/* error message */}
+                <p className="text-red-500 text-base min-h-[20px] text-center mt-4">{error}</p>
             </div>
         </div>
     )
